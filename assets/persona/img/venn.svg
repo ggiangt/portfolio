@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="152" height="101" viewBox="0 0 152 101" fill="none">
+<g id="Venn Diagram 2" clip-path="url(#clip0_0_1)">
+<g id="Diagram">
+<ellipse id="Ellipse 701" cx="50.4266" cy="50.4996" rx="50.4266" ry="50.5" fill="#7873FD" />
+<ellipse id="Ellipse 702" cx="101.22" cy="50.4999" rx="50.4266" ry="50.5" fill="#010669" />
+<path id="Intersect" fill-rule="evenodd" clip-rule="evenodd" d="M75.8235 94.1367C90.7947 85.3791 100.853 69.1158 100.853 50.4997C100.853 31.8836 90.7947 15.6202 75.8235 6.86267C60.8524 15.6202 50.794 31.8836 50.794 50.4997C50.794 69.1158 60.8524 85.3791 75.8235 94.1367Z" fill="#3F48FD" />
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_1">
+<rect width="151.647" height="101" fill="white" />
+</clipPath>
+</defs>
+</svg>

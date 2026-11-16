@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kino AI · Case study</title>
+  <meta name="description" content="AI-first metadata view &amp; multicam browsing for filmmakers.">
+  <link rel="icon" type="image/png" href="../assets/home/logo.png">
+  <link rel="preload" href="../assets/fonts/PPMori-Book.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/PPMori-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/PPEiko-Medium.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+    // Turn on scroll reveals only when they can actually run, so content is never left hidden.
+    if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('js-reveal');
+    }
+  </script>
+  <link rel="stylesheet" href="../site.css">
+  <link rel="stylesheet" href="../case.css">
+</head>
+<body class="case theme-kino">
+
+<nav class="nav" aria-label="Main">
+  <a class="nav__logo" href="../" aria-label="Giang Tran, home"><img src="../assets/home/logo.png" width="228" height="208" alt=""></a>
+  <div class="nav__links" id="nav-links">
+    <a href="../#works" aria-current="page">Case studies</a>
+    <a href="../about-me/">About</a>
+    <a href="../playground/">Playground</a>
+    <a href="https://drive.google.com/file/d/1SyA3VrIay-27mWClztjOkhmCMgIzXOL6/view?usp=sharing" target="_blank" rel="noopener">Resume</a>
+    <a class="nav__mail" href="mailto:giangt.edu@gmail.com">Get in touch</a>
+  </div>
+  <a class="pill" href="mailto:giangt.edu@gmail.com">Get in touch</a>
+  <button class="nav__toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links"><span></span><span></span></button>
+</nav>
+
+<header class="masthead container">
+  <div class="masthead__title">
+    <h1 class="display">Kino AI</h1>
+    <p class="lede">AI-First Metadata View &amp; Multicam Browsing for Filmmakers</p>
+  </div>
+  <dl class="meta">
+    <div><dt>Role</dt><dd>Sole Designer</dd></div>
+    <div><dt>Timeline</dt><dd>1-week Design Sprint</dd></div>
+    <div><dt>Tools</dt><dd>Figma, Figma Make</dd></div>
+  </dl>
+</header>
+
+<main>
+
+  <div class="hero">
+    <div class="container">
+      <div class="hero__frame">
+        <img src="../assets/kino/01.png" width="1294" height="732" alt="Kino multicam view with four camera angles of a guitarist">
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Overview -->
+    <section class="section">
+      <div class="split split--aside">
+        <h2 class="heading">Overview</h2>
+        <div class="titleblock">
+        <p class="eyebrow">At a glance</p>
+        <h3 class="title">Kino is the new home for video editors</h3>
+      </div>
+      </div>
+      <p class="body measure">Backed by YCombinator and AI Grant, Kino is an AI video assistant that helps editors search and log footage using natural-language descriptions.</p>
+
+      <figure>
+        <div class="panel panel--lilac showcase showcase--snug"><img src="../assets/kino/02.png" width="1461" height="861" alt="Kino’s existing interface: a searchable list of clips with transcripts" loading="lazy"></div>
+        <figcaption class="body caption">The look into the product interface</figcaption>
+      </figure>
+    </section>
+
+    <section class="section section--tight">
+      <div class="titleblock titleblock--wide">
+        <p class="eyebrow">The Problem</p>
+        <h3 class="title">Today, traditional multicam editing forces filmmakers to mentally track dozens of disjointed clips &amp; massive file paths</h3>
+      </div>
+      <p class="body measure">While the platform excelled at precise searches across transcripts and people detection, it faced a critical UX challenge when dealing with complex multicam shoots. My work was a 1-week exploratory design sprint to answer the question:</p>
+
+      <div class="panel panel--midnight hmw hmw--solo">
+        <div class="hmw__text">
+          <p class="title on-dark-muted">How might we use AI to…</p>
+          <h3 class="title title--strong on-dark">create a simplified preview experience that helps filmmakers instantly visualize and connect multiple angles of the same scene?</h3>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule rule--spaced">
+
+    <!-- Solutions -->
+    <section class="section section--after-rule">
+      <div class="split split--half">
+        <h2 class="heading">Solutions</h2>
+        <h3 class="title">A novel way to navigate through camera footage</h3>
+      </div>
+
+      <figure>
+        <div class="panel panel--midnight showcase showcase--snug showcase--auto">
+          <img src="../assets/kino/03.png" width="2048" height="1231" alt="Node view linking related clips, alternate angles and B-roll" loading="lazy">
+        </div>
+        <figcaption class="figcap">
+          <p class="title">Nodes: Relationship-focused navigation</p>
+          <p class="body">Understand how footage relates—story structure, alternate angles, B-roll connections, reaction shots.</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <div class="panel panel--midnight showcase showcase--snug showcase--auto">
+          <video data-autoplay muted loop playsinline preload="none" poster="../assets/kino/04-poster.jpg" style="aspect-ratio: 1940 / 1274"
+               aria-label="Screen recording of the grid view playing several angles at once">
+            <source src="../assets/kino/04.mp4" type="video/mp4">
+          </video>
+        </div>
+        <figcaption class="figcap">
+          <p class="title">Grid: Comparison-focused navigation</p>
+          <p class="body">Direct visual comparison and simultaneous playback</p>
+        </figcaption>
+      </figure>
+      <figure>
+        <div class="panel panel--midnight showcase showcase--snug showcase--auto">
+          <video data-autoplay muted loop playsinline preload="none" poster="../assets/kino/05-poster.jpg" style="aspect-ratio: 1622 / 1296"
+               aria-label="Screen recording of the spatial angle map with cameras around a subject">
+            <source src="../assets/kino/05.mp4" type="video/mp4">
+          </video>
+        </div>
+        <figcaption class="figcap">
+          <p class="title">Spatial angle map view</p>
+          <p class="body">Visualizes the physical setup and spatial relationships of cameras</p>
+        </figcaption>
+      </figure>
+    </section>
+
+    <hr class="rule rule--spaced">
+
+    <!-- Process -->
+    <section class="section section--after-rule">
+      <h2 class="heading">Let’s go back to the start</h2>
+
+      <div class="titleblock titleblock--wide">
+        <h3 class="title">What’s the experience of clicking a video and seeing that there are shots of the same scenes, from different angles?</h3>
+      </div>
+      <p class="body measure">Videos in Kino should have “exotic” metadata fields, and ones that allow for more interesting, interactive UI than simply displaying a string. Specifically, what does a Multicam View look like? How do we access the full page version of this view?</p>
+
+      <p class="eyebrow eyebrow--soft">Keeping in mind these constraints</p>
+      <ul class="body bullets">
+        <li>There would be at most 10 shots corresponding to one scene.</li>
+        <li>Some version of this view must exist in the Kino Inspector (RHS panel) as well as its own page</li>
+        <li>A file’s name and its path can be very long</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <div class="titleblock">
+        <p class="eyebrow">Research</p>
+        <h3 class="title">Investigate interaction patterns</h3>
+      </div>
+      <p class="body measure">I studied how other video/photo editing products handle metadata - collecting standout interaction patterns, common pitfalls to avoid, and “delightful but useful” ideas worth borrowing. I broke down why each pattern works, where it breaks at scale, and how to adapt the best ideas to constraints and user goals.</p>
+      <div class="panel panel--grey showcase showcase--snug"><img src="../assets/kino/06.jpg" width="2048" height="1644" alt="A research board of metadata patterns from other editing tools" loading="lazy"></div>
+    </section>
+
+    <section class="section">
+      <div class="titleblock">
+        <p class="eyebrow">Pain points</p>
+        <h3 class="title">Designing for extreme data density</h3>
+      </div>
+      <div class="body prose measure">
+        <p>Multicam editing produces massive amounts of complex data. We had to support up to 10 simultaneous angles per scene, accommodate incredibly long file paths, and fit the UI seamlessly into both a full-page view and the right-hand Inspector panel.</p>
+        <p>As a result, the UI must adapt to the editor’s current task, not just display raw footage. Through user research, I observed 2 main mental models that editors usually think in</p>
+      </div>
+
+      <div class="grid grid--2">
+        <div class="tile tile--text">
+          <p class="eyebrow">When building the stories…</p>
+          <h4 class="title">They think in relationships</h4>
+          <p class="body">“What B-roll supports this interview?” “Where’s the reaction shot?”</p>
+        </div>
+        <div class="tile tile--text">
+          <p class="eyebrow">When selecting the best take…</p>
+          <h4 class="title">They think in comparisons</h4>
+          <p class="body">“Which angle has better framing?” “Is camera 2 or 3 better here?”</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="rule rule--spaced">
+
+    <!-- AI companion -->
+    <section class="section section--after-rule">
+      <div class="titleblock">
+        <p class="eyebrow">Augmenting the current experience</p>
+        <h3 class="title">AI as an editing companion</h3>
+      </div>
+
+      <div class="grid grid--2">
+        <figure class="tile">
+          <div class="tile__media tile__media--dark"><img src="../assets/kino/07.png" width="2048" height="1539" alt="Inspector panel scoring each angle for audio and stability" loading="lazy"></div>
+          <figcaption><strong>Automated Triage</strong>The RHS turns AI into a practical editing assistant—auto-scoring each angle (overall, audio, stabilization) so you can triage footage fast and pick the strongest shots before editing.</figcaption>
+        </figure>
+        <figure class="tile">
+          <div class="tile__media tile__media--dark"><img src="../assets/kino/08.png" width="2048" height="1539" alt="AI labels describing subjects and scene details" loading="lazy"></div>
+          <figcaption><strong>Search by semantics</strong>AI labels scene details and subjects across angles, so you can jump to the right moment, verify context, and build selects without scrubbing.</figcaption>
+        </figure>
+        <figure class="tile">
+          <div class="tile__media tile__media--dark"><img src="../assets/kino/09.jpg" width="2048" height="1539" alt="A monitor wall of angles with metadata overlays" loading="lazy"></div>
+          <figcaption><strong>Enhanced monitoring</strong>Mirrors how professional multicam monitors work in live production, enhanced with AI metadata overlays that would be impossible in hardware.</figcaption>
+        </figure>
+        <figure class="tile">
+          <div class="tile__media tile__media--dark"><img src="../assets/kino/10.jpg" width="2048" height="1539" alt="Clips connected as a map of narrative relationships" loading="lazy"></div>
+          <figcaption><strong>Building narratives through mapping</strong>Makes the invisible visible. Instead of editors mentally tracking relationships across dozens of clips, the system visualizes them</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <hr class="rule rule--spaced">
+
+    <!-- Takeaways -->
+    <section class="section section--after-rule">
+      <p class="eyebrow eyebrow--soft">Key Takeaways</p>
+      <ul class="learned">
+        <li>
+          <h4>AI should anticipate, not just organize</h4>
+          <p class="body">Having rich metadata (composition, emotion, audio quality) is only the baseline. I learned that the true value of AI in creative tools is moving the system from a passive database to an active collaborator - one that can eventually understand editorial intent and proactively suggest the right angle for the moment.</p>
+        </li>
+        <li>
+          <h4>Personalization is the next frontier of pro tools</h4>
+          <p class="body">Watching how editors repeatedly make the same types of selections taught me that scalable AI shouldn’t force a universal standard. The ultimate goal of a smart system is to learn an editor’s unique style and silently adapt the UI to surface those preferences in future projects.</p>
+        </li>
+        <li>
+          <h4>Balance between depth and delivery</h4>
+          <p class="body">A 1-week exploratory sprint forced me to be ruthless with prioritization. By strategically relying on AI-generated blueprints and rapid prototyping tools, I learned how to balance extreme product complexity with strict delivery timelines</p>
+        </li>
+      </ul>
+    </section>
+
+    <a class="next" href="../socratica/">
+      <div>
+        <p class="eyebrow eyebrow--soft">Next case study</p>
+        <p class="display">Socratica</p>
+      </div>
+      <svg class="next__arrow" viewBox="0 0 256 256" aria-hidden="true"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></svg>
+    </a>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <img class="site-footer__bg" src="../assets/home/footer-bg.png" width="2048" height="912" alt="" loading="lazy">
+  <div class="site-footer__inner">
+    <div>
+      <ul class="site-footer__social">
+        <li><a href="https://www.instagram.com/giangtran_0901/" target="_blank" rel="noopener">INSTAGRAM</a></li>
+        <li><a href="https://www.linkedin.com/in/giang-tran0901/" target="_blank" rel="noopener">LINKEDIN</a></li>
+        <li><a href="https://x.com/giangtr0901" target="_blank" rel="noopener">TWITTER</a></li>
+      </ul>
+      <a class="pill" href="mailto:giangt.edu@gmail.com">Get in touch</a>
+      <p class="site-footer__note">Created with love &amp; an endless supply of Vietnamese iced coffees</p>
+    </div>
+    <div class="site-footer__cta">
+      <p class="site-footer__script">Got a vision?</p>
+      <p class="site-footer__connect">Let's connect!</p>
+    </div>
+  </div>
+</footer>
+
+<script src="../site.js" defer></script>
+</body>
+</html>
