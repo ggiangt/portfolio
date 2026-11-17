@@ -256,3 +256,105 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
     });
   });
 })();
+
+// Case studies: a side menu for jumping between the parts of the page.
+// Built from every element with a data-toc label, in page order.
+(function () {
+  const sections = [...document.querySelectorAll('[data-toc][id]')];
+  const main = document.querySelector('main');
+  if (sections.length < 2 || !main) return;
+
+  const nav = document.createElement('nav');
+  nav.className = 'toc';
+  nav.setAttribute('aria-label', 'On this page');
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'toc__toggle';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.innerHTML =
+    '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M1.5 3.5h11M1.5 7h11M1.5 10.5h7"/></svg>' +
+    '<span class="visually-hidden">On this page: </span><span class="toc__current"></span>';
+  const current = toggle.querySelector('.toc__current');
+
+  const list = document.createElement('ol');
+  list.className = 'toc__list';
+  const links = sections.map((section) => {
+    const item = document.createElement('li');
+    const link = document.createElement('a');
+    link.href = `#${section.id}`;
+    link.textContent = section.dataset.toc;
+    item.append(link);
+    list.append(item);
+    return link;
+  });
+
+  nav.append(toggle, list);
+  main.before(nav);
+  root.classList.add('has-toc');
+
+  const setOpen = (open) => {
+    nav.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  };
+  toggle.addEventListener('click', () => setOpen(!nav.classList.contains('is-open')));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+  document.addEventListener('click', (e) => { if (!nav.contains(e.target)) setOpen(false); });
+
+  links.forEach((link, i) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      setOpen(false);
+      sections[i].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      history.replaceState(null, '', link.hash);
+    });
+  });
+
+  const footer = document.querySelector('.site-footer');
+  const hero = document.querySelector('.hero');
+  let active = -1;
+  let queued = false;
+
+  const update = () => {
+    queued = false;
+    const h = window.innerHeight;
+
+    // The current part is the last one whose top has passed the upper third of the screen.
+    let index = 0;
+    sections.forEach((section, i) => {
+      if (section.getBoundingClientRect().top <= h * 0.35) index = i;
+    });
+    if (index !== active) {
+      active = index;
+      links.forEach((link, i) => {
+        if (i === index) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      });
+      current.textContent = sections[index].dataset.toc;
+    }
+
+    // Items sitting on top of the coloured hero band switch to white.
+    if (hero) {
+      const band = hero.getBoundingClientRect();
+      links.forEach((link) => {
+        const box = link.getBoundingClientRect();
+        const mid = box.top + box.height / 2;
+        link.classList.toggle('is-over', box.height > 0 && mid > band.top && mid < band.bottom);
+      });
+    }
+
+    // Always there, except over the footer.
+    const shown = !(footer && footer.getBoundingClientRect().top < h * 0.85);
+    nav.classList.toggle('is-shown', shown);
+    if (!shown) setOpen(false);
+  };
+  const queue = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  };
+
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', queue);
+  update();
+})();

@@ -817,3 +817,131 @@ a { color: inherit; }
 .cards--plain .card { aspect-ratio: auto; min-height: 190px; justify-content: flex-end; }
 .cards--plain .card h4 { font-size: 20px; line-height: 1.1; color: #fff; }
 .cards--plain .card p { margin-top: 10px; font-size: 13px; color: var(--tone-100); }
+
+/* ==========================================================================
+   Side menu — jumps between the parts of a case study.
+   site.js builds it from every element carrying a data-toc label.
+   Desktop: a plain list pinned to the left edge, visible from the top.
+   Tablet and mobile: a pill at the bottom that opens the same list.
+   ========================================================================== */
+[data-toc] { scroll-margin-top: 40px; }
+
+.toc {
+  position: fixed;
+  z-index: 15;
+  font-size: 13px;
+  line-height: 1.3;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .35s, visibility .35s;
+}
+.toc.is-shown { opacity: 1; visibility: visible; }
+.toc a { text-decoration: none; }
+.toc__list { margin: 0; padding: 0; list-style: none; }
+.toc__toggle { display: none; }
+
+@media (min-width: 960px) {
+  .toc {
+    top: clamp(112px, 15vh, 160px);
+    left: 30px;
+    width: 138px;
+    font-size: 14px;
+  }
+  .toc__list { display: grid; gap: 1px; }
+  .toc__list a {
+    position: relative;
+    display: block;
+    padding: 5px 0;
+    color: var(--ink-muted);
+    transition: color .25s;
+  }
+  /* A small square marks the part you're in. */
+  .toc__list a::before {
+    content: "";
+    position: absolute;
+    left: -13px;
+    top: 50%;
+    width: 4px;
+    height: 4px;
+    margin-top: -2px;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity .25s;
+  }
+  .toc__list a:hover { color: var(--ink); }
+  .toc__list a[aria-current] { color: var(--tone-600); }
+  .toc__list a[aria-current]::before { opacity: 1; }
+  .toc__list a.is-over { color: rgba(255, 255, 255, .7); }
+  .toc__list a.is-over:hover,
+  .toc__list a.is-over[aria-current] { color: #fff; }
+}
+
+/* Mid-width screens: nudge the page right so the menu has a column of its own. */
+@media (min-width: 960px) and (max-width: 1339.98px) {
+  .has-toc .container {
+    width: min(var(--content), 100% - 192px - var(--gutter));
+    margin-left: max(192px, (100% - var(--content)) / 2);
+    margin-right: auto;
+  }
+  .has-toc .container .container { width: 100%; margin-left: 0; }
+}
+
+@media (max-width: 959.98px) {
+  .toc {
+    left: 50%;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+  }
+  .toc__toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: calc(100vw - 40px);
+    height: 40px;
+    padding: 0 16px 0 14px;
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .9);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 10px 28px -14px rgba(0, 0, 0, .35);
+    font: inherit;
+    letter-spacing: inherit;
+    color: var(--ink);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .toc__toggle svg { flex: none; color: var(--tone-600); }
+  .toc__current { overflow: hidden; text-overflow: ellipsis; }
+
+  .toc__list {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    width: max-content;
+    min-width: 200px;
+    max-width: calc(100vw - 40px);
+    padding: 6px 18px;
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .96);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 18px 40px -18px rgba(0, 0, 0, .4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, 6px);
+    transition: opacity .25s, transform .25s, visibility .25s;
+  }
+  .toc.is-open .toc__list { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+  .toc__list a { display: block; padding: 11px 0; font-size: 15px; color: var(--ink); }
+  .toc__list li + li a { border-top: 1px solid rgba(0, 0, 0, .08); }
+  .toc__list a[aria-current] { color: var(--tone-600); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc, .toc__list, .toc__list a, .toc__list a::before { transition: none; }
+}
+@media print {
+  .toc { display: none; }
+}
