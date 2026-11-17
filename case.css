@@ -169,11 +169,17 @@ video { object-fit: cover; background: var(--tone-50); }
 .masthead__logo { flex: none; width: 168px; }
 
 /* ---------- Hero ---------- */
+/* A coloured panel a little wider than the text column, not edge to edge. */
 .hero {
-  margin-top: 37px;
+  --hero-pad: clamp(16px, 4vw, 40px);
+  width: min(var(--content) + 2 * var(--hero-pad), 100% - 2 * var(--gutter));
+  margin: 37px auto 0;
   padding-top: clamp(28px, 6.2vw, 79px);
+  border-radius: var(--r-panel);
+  overflow: hidden;
   background: var(--tone-400);
 }
+.hero > .container { width: auto; margin-inline: var(--hero-pad); }
 .hero__frame {
   aspect-ratio: 954 / 509;
   overflow: hidden;
@@ -704,9 +710,7 @@ a { color: inherit; }
 
 /* ---------- Hero with a still ---------- */
 .hero__frame img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
-.hero--plain { padding-top: 0; background: none; }
-.hero--plain .hero__frame { border-radius: var(--r-panel); aspect-ratio: auto; }
-.hero--plain .hero__frame img { height: auto; }
+
 
 /* ---------- Media ---------- */
 .plate { width: 100%; border-radius: var(--r-panel); }
@@ -884,6 +888,13 @@ a { color: inherit; }
     margin-right: auto;
   }
   .has-toc .container .container { width: 100%; margin-left: 0; }
+  /* The hero lines up with the text column here, so it never runs under the menu. */
+  .has-toc .hero {
+    width: min(var(--content), 100% - 192px - var(--gutter));
+    margin-left: max(192px, (100% - var(--content)) / 2);
+    margin-right: auto;
+  }
+  .has-toc .hero > .container { width: auto; margin-left: var(--hero-pad); margin-right: var(--hero-pad); }
 }
 
 @media (max-width: 959.98px) {
