@@ -49,6 +49,57 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   wrap(el);
 })();
 
+// Hero constellations: draw a line from star to star, revealing each star as
+// the line reaches it, then light up the whole sky once everything is joined.
+(function () {
+  const sky = document.querySelector('.hero__stars');
+  if (!sky || !root.classList.contains('js-motion')) return;
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const START = 0.8;   // seconds before the first line starts
+  const DRAW = 12;     // seconds to draw every line, shared out by length
+  const segments = [];
+  const starTimes = new Map();
+  const key = (x, y) => `${x},${y}`;
+
+  sky.querySelectorAll('polyline').forEach((poly) => {
+    const pts = poly.getAttribute('points').trim().split(/\s+/).map((p) => p.split(',').map(Number));
+    for (let i = 1; i < pts.length; i++) {
+      const [x1, y1] = pts[i - 1];
+      const [x2, y2] = pts[i];
+      const line = document.createElementNS(NS, 'line');
+      line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+      poly.before(line);
+      segments.push({ line, from: key(x1, y1), to: key(x2, y2), len: Math.hypot(x2 - x1, y2 - y1) });
+    }
+    poly.remove();
+  });
+
+  const total = segments.reduce((sum, seg) => sum + seg.len, 0);
+  let t = START;
+  segments.forEach((seg, i) => {
+    const dur = (seg.len / total) * DRAW;
+    // A branch starts from a star that's already lit, so it never waits on a gap.
+    if (!starTimes.has(seg.from)) starTimes.set(seg.from, t);
+    seg.line.style.setProperty('--len', seg.len.toFixed(1));
+    seg.line.style.setProperty('--dur', `${dur.toFixed(2)}s`);
+    seg.line.style.setProperty('--delay', `${t.toFixed(2)}s`);
+    t += dur;
+    if (!starTimes.has(seg.to)) starTimes.set(seg.to, t - 0.08);
+  });
+
+  sky.querySelectorAll('.star').forEach((star) => {
+    const at = starTimes.get(star.dataset.at);
+    star.style.setProperty('--delay', `${(at ?? START).toFixed(2)}s`);
+    // Each sparkle pulses at its own pace so they never blink in unison.
+    star.style.setProperty('--tw-dur', `${(2.2 + Math.random() * 2.4).toFixed(2)}s`);
+    star.style.setProperty('--tw-delay', `${(Math.random() * 2).toFixed(2)}s`);
+  });
+
+  setTimeout(() => sky.classList.add('is-lit'), (t + 0.35) * 1000);
+})();
+
 // Reveal on scroll: fade blocks up as they enter the viewport.
 (function () {
   const isHome = root.classList.contains('js-motion');

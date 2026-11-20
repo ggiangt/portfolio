@@ -47,19 +47,51 @@ a { color: inherit; text-decoration: none; }
 }
 
 .hero__stars { position: absolute; inset: 0; width: 100%; height: 100%; }
-.constellation polyline {
+.constellation :is(polyline, line) {
   fill: none;
   stroke: rgba(255, 255, 255, .55);
   stroke-width: .8;
-  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  transition: stroke 1.6s ease;
 }
-.constellation circle { fill: #fff; filter: drop-shadow(0 0 4px rgba(255, 255, 255, .9)); }
+.constellation .star {
+  fill: #fff;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, .7));
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: filter 1.6s ease;
+}
+/* A faint blurred glow sitting behind each sparkle. */
+.constellation .star__halo {
+  fill: rgba(220, 235, 255, .35);
+  filter: blur(2.5px);
+}
 .js-motion .constellation { animation: drift 14s ease-in-out infinite alternate; }
 .js-motion .constellation--b { animation-duration: 18s; animation-delay: -6s; }
 .js-motion .constellation--c { animation-duration: 16s; animation-delay: -3s; }
-.js-motion .constellation circle { animation: twinkle 3.4s ease-in-out infinite; }
-.js-motion .constellation circle:nth-of-type(2n) { animation-delay: -1.2s; }
-.js-motion .constellation circle:nth-of-type(3n) { animation-delay: -2.3s; }
+
+/* Load sequence (site.js sets the lengths and delays): a line draws from star
+   to star, each star appears as the line reaches it, then the whole sky lights up. */
+.js-motion .hero__stars line {
+  stroke: rgba(255, 255, 255, .4);
+  stroke-dasharray: var(--len);
+  stroke-dashoffset: var(--len);
+  animation: draw-line var(--dur) cubic-bezier(.45, 0, .55, 1) var(--delay) forwards;
+}
+.js-motion .hero__stars .star {
+  opacity: 0;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, .6));
+  animation: star-in .9s ease-out var(--delay, 0s) forwards;
+}
+.js-motion .hero__stars.is-lit line { stroke: rgba(255, 255, 255, .7); }
+/* Once lit, each sparkle pulses in and out on its own rhythm (set in site.js). */
+.js-motion .hero__stars.is-lit .star {
+  opacity: 1;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, .9)) drop-shadow(0 0 6px rgba(202, 224, 250, .5));
+  animation:
+    light-up 1.8s ease-out,
+    twinkle var(--tw-dur, 3s) ease-in-out calc(1.8s + var(--tw-delay, 0s)) infinite;
+}
 
 .hero__sparkle {
   position: absolute;
@@ -76,9 +108,20 @@ a { color: inherit; text-decoration: none; }
   from { transform: translate(0, 0); }
   to { transform: translate(10px, -8px); }
 }
+@keyframes draw-line { to { stroke-dashoffset: 0; } }
+@keyframes star-in {
+  from { opacity: 0; transform: scale(.2); }
+  60% { opacity: .9; transform: scale(1.25); }
+  to { opacity: .7; transform: scale(1); }
+}
+@keyframes light-up {
+  0% { opacity: .7; transform: scale(1); }
+  35% { opacity: 1; transform: scale(1.4); }
+  100% { opacity: 1; transform: scale(1); }
+}
 @keyframes twinkle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .35; }
+  0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0; transform: scale(.15) rotate(45deg); }
 }
 @keyframes sparkle {
   0%, 100% { transform: rotate(-42deg) scale(1); opacity: .86; }
