@@ -116,7 +116,6 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
         '.before-after',
         '.rule',
         '.footnote > *',
-        '.next',
         `.section > :not(${groups})`,
         `:is(${groups}) > *`,
       ].join(', ');
