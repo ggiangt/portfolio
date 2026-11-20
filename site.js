@@ -20,6 +20,116 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   document.addEventListener('click', (e) => { if (!nav.contains(e.target)) setOpen(false); });
 })();
 
+// Pinned menu: starts with the logo on the left and the links on the right,
+// then both glide to the centre once the page scrolls. The text colour flips
+// between light and dark to suit whatever is behind the menu.
+(function () {
+  const nav = document.querySelector('.nav');
+  const logo = nav && nav.querySelector('.nav__logo');
+  const links = nav && nav.querySelector('.nav__links');
+  if (!logo || !links) return;
+
+  const wide = window.matchMedia('(min-width: 861px)');
+  const GAP = 14;
+  const SCALE = 0.78;
+  let scrolled = window.scrollY > 40;
+
+  const layout = () => {
+    nav.classList.toggle('is-scrolled', scrolled);
+    if (!wide.matches) { nav.classList.remove('nav--js'); return; }
+    const vw = root.clientWidth;
+    const w = links.offsetWidth;
+    const l = logo.offsetWidth * (scrolled ? SCALE : 1);
+    let logoX = 80;
+    let linksX = vw - 40 - w;
+    if (scrolled) {
+      logoX = (vw - (l + GAP + w)) / 2;
+      linksX = logoX + l + GAP;
+    }
+    nav.style.setProperty('--logo-x', `${logoX}px`);
+    nav.style.setProperty('--links-x', `${linksX}px`);
+    nav.style.setProperty('--logo-s', scrolled ? SCALE : 1);
+    nav.classList.add('nav--js');
+  };
+
+  // --- What colour is behind the menu? ---
+  const luminance = (r, g, b) => {
+    const c = [r, g, b].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const thumbs = new WeakMap();
+  const imageLum = (img, x, y) => {
+    if (!img.complete || !img.naturalWidth) return null;
+    try {
+      let data = thumbs.get(img);
+      if (!data) {
+        const canvas = document.createElement('canvas');
+        canvas.width = canvas.height = 24;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(img, 0, 0, 24, 24);
+        data = ctx.getImageData(0, 0, 24, 24).data;
+        thumbs.set(img, data);
+      }
+      const r = img.getBoundingClientRect();
+      const px = Math.min(23, Math.max(0, Math.floor(((x - r.left) / r.width) * 24)));
+      const py = Math.min(23, Math.max(0, Math.floor(((y - r.top) / r.height) * 24)));
+      const i = (py * 24 + px) * 4;
+      return luminance(data[i], data[i + 1], data[i + 2]);
+    } catch (err) { return null; }
+  };
+  const skip = (el) => nav.contains(el) || el.closest('.sparkle-trail, .toc');
+  const contains = (el, x, y) => {
+    const r = el.getBoundingClientRect();
+    return r.width && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+  };
+  const lumAt = (x, y) => {
+    for (const el of document.elementsFromPoint(x, y)) {
+      if (skip(el)) continue;
+      if (el.tagName === 'IMG') { const v = imageLum(el, x, y); if (v != null) return v; continue; }
+      if (el.tagName === 'VIDEO' || el.tagName === 'CANVAS') return 0.05;
+      const bg = getComputedStyle(el).backgroundColor.match(/[\d.]+/g);
+      if (bg && (bg[3] === undefined ? 1 : +bg[3]) > 0.5) return luminance(+bg[0], +bg[1], +bg[2]);
+      // Background art that ignores the pointer (e.g. the home hero) is not
+      // hit-tested, so look for media inside this element under the point.
+      const media = [...el.querySelectorAll(':scope img, :scope video')].filter((m) => !skip(m) && contains(m, x, y)).pop();
+      if (media) {
+        const v = media.tagName === 'IMG' ? imageLum(media, x, y) : 0.05;
+        if (v != null) return v;
+      }
+    }
+    return 1;
+  };
+  const theme = () => {
+    const r = links.getBoundingClientRect();
+    const target = wide.matches && r.width ? r : nav.querySelector('.nav__toggle').getBoundingClientRect();
+    const y = target.top + target.height / 2;
+    const xs = [0.15, 0.5, 0.85].map((f) => target.left + target.width * f);
+    const lum = xs.reduce((sum, x) => sum + lumAt(x, y), 0) / xs.length;
+    const dark = lum < 0.35;
+    nav.classList.toggle('is-on-dark', dark);
+    nav.classList.toggle('is-on-light', !dark);
+  };
+
+  let queued = false;
+  const update = () => {
+    queued = false;
+    const s = window.scrollY > 40;
+    if (s !== scrolled) { scrolled = s; layout(); }
+    theme();
+  };
+  const queue = () => { if (!queued) { queued = true; requestAnimationFrame(update); } };
+
+  layout();
+  theme();
+  requestAnimationFrame(() => requestAnimationFrame(() => nav.classList.add('nav--ready')));
+  window.addEventListener('scroll', queue, { passive: true });
+  window.addEventListener('resize', () => { layout(); queue(); });
+  window.addEventListener('load', () => { layout(); theme(); });
+  if (document.fonts) document.fonts.ready.then(() => { layout(); theme(); });
+  // The menu takes ~.8s to move; check the colour again once it has settled.
+  links.addEventListener('transitionend', (e) => { if (e.propertyName === 'transform') theme(); });
+})();
+
 // Hero headline: wrap each word so CSS can bring them into focus one by one.
 (function () {
   const el = document.querySelector('[data-words]');
