@@ -107,7 +107,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   if (!isHome && !isCase) return;
 
   // Mirrors the selector lists in styles.css (home) and case.css (case studies).
-  const groups = '.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles';
+  const groups = '.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles, .bento';
   const selector = isHome
     ? '.work, .beyond__head > *'
     : [

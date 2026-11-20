@@ -527,9 +527,8 @@ video { object-fit: cover; background: var(--tone-50); }
   .before-after,
   .rule,
   .footnote > *,
-  .next,
-  .section > :not(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles),
-  :is(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles) > *
+  .section > :not(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles, .bento),
+  :is(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles, .bento) > *
 ) {
   transition:
     opacity .7s cubic-bezier(.2, .6, .2, 1) var(--reveal-delay, 0ms),
@@ -541,9 +540,8 @@ video { object-fit: cover; background: var(--tone-50); }
   .before-after,
   .rule,
   .footnote > *,
-  .next,
-  .section > :not(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles),
-  :is(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles) > *
+  .section > :not(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles, .bento),
+  :is(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles, .bento) > *
 ):not(.is-visible) {
   opacity: 0;
   transform: translateY(20px);
@@ -959,4 +957,90 @@ a { color: inherit; }
 }
 @media print {
   .toc { display: none; }
+}
+
+/* ==========================================================================
+   Bento: a wide card on top, two cards below, each pairing a short headline
+   with a screen. Media either bleeds off the card's right and bottom edges
+   or sits inset with a soft shadow.
+   ========================================================================== */
+.bento { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+
+.bento__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--r-card);
+}
+.bento__card--accent { background: var(--tone-600); color: #fff; }
+.bento__card--dark { background: var(--tone-900); color: #fff; }
+.bento__card--light { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--tone-200); }
+
+.bento__text { display: grid; gap: var(--s-2); padding: 40px 40px 0; }
+/* Type comes from the shared scale (.eyebrow, .title, .body); the coloured
+   cards only swap in the on-dark colours the rest of the case studies use. */
+.bento__text .title { max-width: 380px; }
+:is(.bento__card--accent, .bento__card--dark) .eyebrow { color: var(--on-navy-label); }
+.bento__card--accent .eyebrow { color: var(--tone-200); }
+:is(.bento__card--accent, .bento__card--dark) .body { color: var(--on-dark-soft); }
+
+/* Media that runs off the right and bottom edges of the card. */
+.bento__media--bleed {
+  position: relative;
+  flex: 1;
+  min-height: 280px;
+  margin-left: 40px;
+  overflow: hidden;
+  border-radius: 8px 0 0 0;
+  background: #fff;
+}
+/* Positioned so the screenshot fills the space without setting the card's height. */
+.bento__media--bleed img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+}
+
+/* Media that sits inside the card with a soft shadow. */
+.bento__media--inset { flex: 1; padding: 0 40px 40px; }
+.bento__media--inset img {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  object-fit: cover;
+  object-position: 72% center;
+  border-radius: 6px;
+  box-shadow: 0 14px 34px -18px rgba(0, 0, 0, .35);
+}
+
+/* Wide card: text on the left, the screen bleeding off on the right. */
+.bento__card--wide {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 40px;
+  min-height: 380px;
+}
+.bento__card--wide .bento__text { align-content: space-between; padding: 40px 0 40px 40px; }
+.bento__card--wide .bento__media--bleed { margin: 40px 0 0; min-height: 0; }
+.bento__card--wide .bento__media--bleed img { width: 125%; }
+
+@media (max-width: 720px) {
+  .bento { grid-template-columns: minmax(0, 1fr); }
+  .bento__card { gap: 24px; }
+  .bento__text { padding: 28px 24px 0; }
+  .bento__card--wide { display: flex; min-height: 0; gap: 24px; }
+  .bento__card--wide .bento__text { gap: 18px; padding: 28px 24px 0; }
+  .bento__card--wide .bento__media--bleed { height: 240px; margin-left: 24px; flex: none; }
+  .bento__media--bleed { margin-left: 24px; min-height: 240px; }
+  .bento__media--inset { padding: 0 24px 24px; }
+  .bento__media--inset img { min-height: 0; aspect-ratio: 4 / 3; }
 }
