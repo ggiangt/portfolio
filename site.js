@@ -261,6 +261,8 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
       stage.classList.add('has-cursor');
       stage.style.setProperty('--px', `${e.clientX - rect.left}px`);
       stage.style.setProperty('--py', `${e.clientY - rect.top}px`);
+      // Over a piece of work (and not mid-drag), the cursor offers "See more".
+      stage.classList.toggle('is-over-work', !dragging && !!e.target.closest('figure'));
     }
     if (!dragging) return;
     const now = performance.now();
@@ -286,7 +288,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   };
   stage.addEventListener('pointerup', release);
   stage.addEventListener('pointercancel', release);
-  stage.addEventListener('pointerleave', () => stage.classList.remove('has-cursor'));
+  stage.addEventListener('pointerleave', () => stage.classList.remove('has-cursor', 'is-over-work'));
   window.addEventListener('resize', apply);
 })();
 

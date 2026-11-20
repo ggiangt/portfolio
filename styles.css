@@ -344,11 +344,57 @@ a.work:focus-visible .work__title svg { transform: rotate(0deg) scale(.9); }
   pointer-events: none;
   transition: opacity .3s;
 }
-/* With a mouse, the pill replaces the cursor inside the canvas. */
+/* With a mouse, a hand replaces the cursor inside the canvas: it sways while
+   idle, closes while dragging, and turns into "See more" over a piece of work. */
+.drag-cursor { display: none; }
 @media (hover: hover) and (pointer: fine) {
   .beyond__stage.has-cursor,
   .beyond__stage.has-cursor.is-dragging { cursor: none; }
-  .beyond__stage.has-cursor .drag-pill { top: 0; left: 0; transform: translate3d(var(--px, 0px), var(--py, 0px), 0) translate(-50%, -50%); }
+
+  .drag-cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 52px;
+    padding: 0 13px;
+    border-radius: 999px;
+    background: rgba(64, 64, 64, .78);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-family: "Space Mono", var(--font-mono);
+    font-size: 15px;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate3d(var(--px, 0px), var(--py, 0px), 0) translate(-50%, -50%) scale(.6);
+    transition: opacity .2s, transform .2s cubic-bezier(.2, .6, .2, 1), padding .25s;
+  }
+  .has-cursor .drag-cursor { opacity: 1; transform: translate3d(var(--px, 0px), var(--py, 0px), 0) translate(-50%, -50%); }
+  /* Follow the pointer without lag; only the size change eases. */
+  .has-cursor .drag-cursor { transition: opacity .2s, padding .25s; }
+
+  .drag-cursor__hand { flex: none; display: block; }
+  .drag-cursor__hand--open { animation: hand-sway 1.6s ease-in-out infinite; transform-origin: 50% 90%; }
+  .drag-cursor__hand--grab,
+  .is-dragging .drag-cursor__hand--open { display: none; }
+  .is-dragging .drag-cursor__hand--grab { display: block; }
+
+  .drag-cursor__label { display: none; }
+  .is-over-work:not(.is-dragging) .drag-cursor { padding: 0 20px 0 15px; }
+  .is-over-work:not(.is-dragging) .drag-cursor__label { display: block; }
+
+  .has-cursor .drag-pill { opacity: 0; }
+}
+@keyframes hand-sway {
+  0%, 100% { transform: translateX(-2px) rotate(-8deg); }
+  50% { transform: translateX(2px) rotate(8deg); }
 }
 
 /* ---------- Scroll reveals ---------- */
@@ -401,5 +447,6 @@ a.work:focus-visible .work__title svg { transform: rotate(0deg) scale(.9); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .drag-cursor__hand--open { animation: none; }
   .work__media img, .work__title svg { transition: none; }
 }
