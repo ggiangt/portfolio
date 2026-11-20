@@ -117,11 +117,11 @@ video { object-fit: cover; background: var(--tone-50); }
 .titleblock { display: grid; gap: var(--s-2); max-width: 470px; }
 .titleblock--wide { max-width: 625px; }
 .titleblock--narrow { max-width: 325px; }
-
 /* Uses the whole column and lets lines run full rather than balancing them. */
 .titleblock--fill { max-width: none; }
 .titleblock--fill .title { text-wrap: pretty; }
 .titleblock--fill .body { margin-top: var(--s-2); }
+
 /* ---------- Rhythm ---------- */
 .section { margin-top: var(--s-8); }
 .section--tight { margin-top: var(--s-7); }
@@ -517,6 +517,19 @@ video { object-fit: cover; background: var(--tone-50); }
 .learned .learned__cursor { height: 112px; margin: -22px 0 -22px -26px; }
 .learned h4 { margin-top: 10px; font-weight: 350; font-size: 15px; line-height: 1.37; }
 .learned .body { margin-top: 10px; }
+/* Rows: each takeaway runs across the page, its heading on the left (in the
+   same column as section headings) and the story on the right. */
+.learned--rows { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.learned--rows li {
+  display: grid;
+  grid-template-columns: 211px minmax(0, 1fr);
+  gap: var(--s-3) 20px;
+  padding: var(--s-5) 0;
+  border-top: .5px solid rgba(0, 0, 0, .2);
+}
+.learned--rows li:last-child { border-bottom: .5px solid rgba(0, 0, 0, .2); }
+.learned--rows h4 { margin: 0; }
+.learned--rows .body { margin: 0; max-width: 651px; }
 
 /* ---------- Footnote ---------- */
 .footnote { max-width: 627px; margin: var(--s-8) auto 0; }
@@ -654,6 +667,7 @@ video { object-fit: cover; background: var(--tone-50); }
   .outcome { padding: 24px; }
 
   .learned { grid-template-columns: minmax(0, 1fr); }
+  .learned--rows li { grid-template-columns: minmax(0, 1fr); padding: var(--s-4) 0; }
 }
 
 @media (max-width: 520px) {
