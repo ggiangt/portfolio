@@ -408,3 +408,47 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
   window.addEventListener('resize', queue);
   update();
 })();
+
+// Cursor trail: little sparkles in shades of blue follow a mouse pointer.
+(function () {
+  if (reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+  const blues = ['#022161', '#1b4a96', '#3373bd', '#5b9be0', '#8ec0f5', '#b9d8fb'];
+  const layer = document.createElement('div');
+  layer.className = 'sparkle-trail';
+  layer.setAttribute('aria-hidden', 'true');
+  document.body.append(layer);
+
+  let lastX = -100;
+  let lastY = -100;
+  let live = 0;
+
+  window.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    // One sparkle every ~16px of travel keeps the trail even at any speed.
+    if (Math.hypot(e.clientX - lastX, e.clientY - lastY) < 16 || live > 40) return;
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    const spark = document.createElement('span');
+    const size = 6 + Math.random() * 9;
+    const color = blues[Math.floor(Math.random() * blues.length)];
+    spark.className = 'sparkle-trail__spark';
+    spark.style.cssText =
+      `left:${e.clientX}px;top:${e.clientY}px;width:${size}px;height:${size}px;` +
+      `background:${color};color:${color}`;
+    layer.append(spark);
+    live++;
+
+    const dx = (Math.random() - 0.5) * 30;
+    const dy = 14 + Math.random() * 26;
+    const spin = (Math.random() - 0.5) * 180;
+    spark.animate(
+      [
+        { opacity: 1, transform: 'translate(-50%, -50%) scale(1) rotate(0deg)' },
+        { opacity: 0, transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.2) rotate(${spin}deg)` },
+      ],
+      { duration: 700 + Math.random() * 400, easing: 'cubic-bezier(.2, .6, .3, 1)' },
+    ).onfinish = () => { spark.remove(); live--; };
+  }, { passive: true });
+})();
