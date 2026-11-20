@@ -118,6 +118,10 @@ video { object-fit: cover; background: var(--tone-50); }
 .titleblock--wide { max-width: 625px; }
 .titleblock--narrow { max-width: 325px; }
 
+/* Uses the whole column and lets lines run full rather than balancing them. */
+.titleblock--fill { max-width: none; }
+.titleblock--fill .title { text-wrap: pretty; }
+.titleblock--fill .body { margin-top: var(--s-2); }
 /* ---------- Rhythm ---------- */
 .section { margin-top: var(--s-8); }
 .section--tight { margin-top: var(--s-7); }
