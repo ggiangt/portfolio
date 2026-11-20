@@ -851,7 +851,7 @@ a { color: inherit; }
 
 @media (min-width: 960px) {
   .toc {
-    top: clamp(112px, 15vh, 160px);
+    top: var(--toc-top, clamp(112px, 15vh, 160px));
     left: 30px;
     width: 138px;
     font-size: 14px;
@@ -880,9 +880,6 @@ a { color: inherit; }
   .toc__list a:hover { color: var(--ink); }
   .toc__list a[aria-current] { color: var(--tone-600); }
   .toc__list a[aria-current]::before { opacity: 1; }
-  .toc__list a.is-over { color: rgba(255, 255, 255, .7); }
-  .toc__list a.is-over:hover,
-  .toc__list a.is-over[aria-current] { color: #fff; }
 }
 
 /* Mid-width screens: nudge the page right so the menu has a column of its own. */

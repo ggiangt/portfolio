@@ -312,6 +312,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 
   const footer = document.querySelector('.site-footer');
   const hero = document.querySelector('.hero');
+  const wide = window.matchMedia('(min-width: 960px)');
   let active = -1;
   let queued = false;
 
@@ -333,14 +334,12 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
       current.textContent = sections[index].dataset.toc;
     }
 
-    // Items sitting on top of the coloured hero band switch to white.
-    if (hero) {
-      const band = hero.getBoundingClientRect();
-      links.forEach((link) => {
-        const box = link.getBoundingClientRect();
-        const mid = box.top + box.height / 2;
-        link.classList.toggle('is-over', box.height > 0 && mid > band.top && mid < band.bottom);
-      });
+    // On wide screens the menu sits still, level with where the cover image
+    // starts on the page (pulled up only if the window is too short to fit it).
+    if (wide.matches && hero) {
+      const start = hero.getBoundingClientRect().top + window.scrollY - 5;
+      const fit = window.innerHeight - nav.offsetHeight - 24;
+      nav.style.setProperty('--toc-top', `${Math.max(24, Math.min(start, fit))}px`);
     }
 
     // Always there, except over the footer.
