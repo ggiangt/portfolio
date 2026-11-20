@@ -57,7 +57,15 @@
 .nav__logo { flex: none; display: block; margin-right: 41px; }
 .nav__logo img { display: block; width: 55px; height: auto; }
 
-.nav__links { display: flex; align-items: center; gap: 40px; margin-right: auto; }
+/* Links sit in the middle of the page, independent of the logo's width. */
+.nav__links {
+  position: absolute;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  transform: translateX(-50%);
+}
 .nav__links a { position: relative; opacity: .92; transition: opacity .2s; }
 .nav__links a::after {
   content: "";
@@ -94,8 +102,6 @@
   transition: background-color .25s, color .25s, border-color .25s;
 }
 .pill:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
-.nav--over .pill { color: var(--sky); }
-.nav--over .pill:hover { background: #fff; border-color: #fff; color: var(--navy); }
 
 /* ---------- Footer ---------- */
 .site-footer {
@@ -192,7 +198,6 @@
   .nav.is-open .nav__toggle span:first-child { transform: rotate(45deg); }
   .nav.is-open .nav__toggle span:last-child { transform: rotate(-45deg); }
 
-  .nav > .pill { display: none; }
   .nav__links {
     position: absolute;
     top: 64px;
