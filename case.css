@@ -132,7 +132,8 @@ video { object-fit: cover; background: var(--tone-50); }
 .section > .panel + .panel,
 .section > .titleblock + .panel { margin-top: var(--s-5); }
 
-.rule { height: 0; margin: var(--s-6) 0 0; border: 0; border-top: 1px solid var(--line); }
+/* Dividers between parts: a hairline at 40% of the body line strength. */
+.rule { height: 0; margin: var(--s-6) 0 0; border: 0; border-top: .5px solid rgba(0, 0, 0, .2); }
 .rule--spaced { margin-top: var(--s-9); }
 
 /* ---------- Panels ---------- */
