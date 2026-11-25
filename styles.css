@@ -398,7 +398,7 @@ a.work:focus-visible .work__title svg { transform: rotate(0deg) scale(.9); }
   color: var(--navy);
 }
 @media (min-width: 900px) { .beyond__head h2 { white-space: nowrap; } }
-.beyond__head p { max-width: 300px; font-weight: 300; font-size: 16px; line-height: 1.2; letter-spacing: -.01em; color: var(--navy); }
+.beyond__head p { max-width: 300px; font-weight: 300; font-size: 16px; line-height: 1.2; letter-spacing: -.01em; color: var(--body); }
 
 /* Lightbox: a clicked piece opens large over the page. */
 .lightbox {
