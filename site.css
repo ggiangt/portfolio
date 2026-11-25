@@ -26,7 +26,8 @@
   --sky: #cae0fa;
   --mist: #f0f7ff;
   --cream: #fffdf8;
-  --slate: rgba(93, 111, 135, .98);
+  --slate: #5d6f87;
+  --body: #5d6f87;          /* body copy across the site */
 
   --font-sans: "PP Mori", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-serif: "PP Eiko", "Iowan Old Style", Georgia, serif;

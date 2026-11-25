@@ -231,18 +231,17 @@ a.work:focus-visible .work__title svg { transform: rotate(0deg) scale(.9); }
 
 .work__desc { margin-top: 13px; font-size: 16px; line-height: 24px; color: var(--slate); }
 
-.tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 13px; }
+/* Tags: quiet outlined pills. */
+.tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 16px; }
 .tags li {
-  padding: 0 5px;
-  border-radius: 2px;
-  background: var(--navy);
-  font-size: 15px;
-  line-height: 22.5px;
+  padding: 5px 17px;
+  border: 1px solid rgba(2, 33, 97, .22);
+  border-radius: 999px;
+  font-size: 14px;
+  line-height: 20px;
   letter-spacing: 0;
-  color: #fff;
+  color: var(--slate);
 }
-.tags li:nth-child(2) { background: var(--blue); color: var(--mist); }
-.tags li:nth-child(3) { background: var(--sky); color: var(--navy); }
 
 /* ---------- Beyond designing ---------- */
 .beyond { background: #fff; }
