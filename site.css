@@ -64,36 +64,42 @@
 .nav.is-on-dark { color: var(--mist); }
 .nav.is-on-light { color: var(--navy); }
 
+/* Once the page scrolls, a frosted bar runs the full width behind the logo
+   and links. It, the logo and the links slide away while scrolling down and
+   come back on any scroll up (site.js sets .is-scrolled / .is-hidden). */
+.nav::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  background: rgba(255, 255, 255, .6);
+  box-shadow: 0 1px 0 rgba(2, 33, 97, .06);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s, background-color .35s, box-shadow .35s, translate .4s cubic-bezier(.2, .7, .2, 1);
+}
+.nav.is-on-dark::before { background: rgba(6, 20, 66, .28); box-shadow: 0 1px 0 rgba(255, 255, 255, .08); }
+.nav.is-scrolled::before { opacity: 1; }
+.nav__logo,
 .nav__links,
-.nav__toggle {
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-  backdrop-filter: blur(14px) saturate(160%);
-  background: rgba(255, 255, 255, .12);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
-  transition: color .35s, background-color .35s, box-shadow .35s;
-}
-.nav.is-on-light .nav__links,
-.nav.is-on-light .nav__toggle {
-  background: rgba(255, 255, 255, .55);
-  box-shadow: inset 0 0 0 1px rgba(2, 33, 97, .08), 0 8px 24px -14px rgba(2, 33, 97, .35);
-}
-/* At the very top the menu sits on the page with no glass behind it. */
-.nav:not(.is-scrolled) .nav__links,
-.nav:not(.is-scrolled) .nav__toggle {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-  background-color: transparent;
-  box-shadow: none;
+.nav__toggle { transition: color .35s, translate .4s cubic-bezier(.2, .7, .2, 1); }
+.nav.is-hidden::before,
+.nav.is-hidden .nav__logo,
+.nav.is-hidden .nav__toggle { translate: 0 -120%; }
+@media (min-width: 861px) {
+  .nav.is-hidden .nav__links { translate: 0 -120%; }
 }
 
 @media (min-width: 861px) {
-  /* Start: logo on the left, menu on the right. Scrolled: both meet in the
-     middle. site.js measures the menu and sets --logo-x / --links-x. */
+  /* Logo pinned on the left, menu pinned on the right. */
   .nav__logo {
     position: fixed;
     top: 20px;
     left: 80px;
-    transform-origin: left center;
   }
   .nav__links {
     position: fixed;
@@ -104,12 +110,6 @@
     gap: 36px;
     padding: 10px 24px;
     border-radius: 12px;
-  }
-  .nav--js .nav__logo { left: 0; transform: translateX(var(--logo-x)) scale(var(--logo-s, 1)); }
-  .nav--js .nav__links { left: 0; right: auto; transform: translateX(var(--links-x)); }
-  .nav--ready .nav__logo,
-  .nav--ready .nav__links {
-    transition: transform .8s cubic-bezier(.65, 0, .35, 1), color .35s, background-color .35s, box-shadow .35s;
   }
 }
 .nav__links a { font-family: var(--font-serif); font-weight: 100; font-size: 15px; letter-spacing: 0; opacity: .92; transition: opacity .2s; }
@@ -201,6 +201,7 @@
    ========================================================================== */
 @media (max-width: 860px) {
   .nav { height: 72px; padding: 0 20px; gap: 16px; }
+  .nav::before { height: 72px; }
   .nav__logo { position: fixed; top: 14px; left: 20px; }
   .nav__logo img { width: 46px; }
 
@@ -271,8 +272,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav__links, .nav__toggle span, .pill,
-  .nav--ready .nav__logo, .nav--ready .nav__links { transition: none; }
+  .nav__links, .nav__toggle span, .pill, .nav__logo, .nav__toggle, .nav::before { transition: none; }
 }
 
 /* ---------- Cursor sparkle trail (site.js) ---------- */

@@ -4,55 +4,10 @@
 const root = document.documentElement;
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Mobile navigation
-(function () {
-  const nav = document.querySelector('.nav');
-  const toggle = nav && nav.querySelector('.nav__toggle');
-  if (!toggle) return;
-
-  const setOpen = (open) => {
-    nav.classList.toggle('is-open', open);
-    toggle.setAttribute('aria-expanded', String(open));
-  };
-  toggle.addEventListener('click', () => setOpen(!nav.classList.contains('is-open')));
-  nav.querySelectorAll('.nav__links a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
-  document.addEventListener('click', (e) => { if (!nav.contains(e.target)) setOpen(false); });
-})();
-
-// Pinned menu: starts with the logo on the left and the links on the right,
-// then both glide to the centre once the page scrolls. The text colour flips
-// between light and dark to suit whatever is behind the menu.
-(function () {
-  const nav = document.querySelector('.nav');
-  const logo = nav && nav.querySelector('.nav__logo');
-  const links = nav && nav.querySelector('.nav__links');
-  if (!logo || !links) return;
-
-  const wide = window.matchMedia('(min-width: 861px)');
-  const GAP = 14;
-  const SCALE = 0.78;
-  let scrolled = window.scrollY > 40;
-
-  const layout = () => {
-    nav.classList.toggle('is-scrolled', scrolled);
-    if (!wide.matches) { nav.classList.remove('nav--js'); return; }
-    const vw = root.clientWidth;
-    const w = links.offsetWidth;
-    const l = logo.offsetWidth * (scrolled ? SCALE : 1);
-    let logoX = 80;
-    let linksX = vw - 40 - w;
-    if (scrolled) {
-      logoX = (vw - (l + GAP + w)) / 2;
-      linksX = logoX + l + GAP;
-    }
-    nav.style.setProperty('--logo-x', `${logoX}px`);
-    nav.style.setProperty('--links-x', `${linksX}px`);
-    nav.style.setProperty('--logo-s', scrolled ? SCALE : 1);
-    nav.classList.add('nav--js');
-  };
-
-  // --- What colour is behind the menu? ---
+// How light is the page at a point? Looks through whatever sits there (images
+// by their pixels, solid backgrounds by colour) and returns 0 (black) to 1
+// (white). Used by the menu and the cursor to pick light or dark.
+const backdropLuminance = (() => {
   const luminance = (r, g, b) => {
     const c = [r, g, b].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
     return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
@@ -77,12 +32,11 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
       return luminance(data[i], data[i + 1], data[i + 2]);
     } catch (err) { return null; }
   };
-  const skip = (el) => nav.contains(el) || el.closest('.sparkle-trail, .toc');
   const contains = (el, x, y) => {
     const r = el.getBoundingClientRect();
     return r.width && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
   };
-  const lumAt = (x, y) => {
+  return (x, y, skip = () => false) => {
     for (const el of document.elementsFromPoint(x, y)) {
       if (skip(el)) continue;
       if (el.tagName === 'IMG') { const v = imageLum(el, x, y); if (v != null) return v; continue; }
@@ -99,6 +53,53 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
     }
     return 1;
   };
+})();
+
+// Mobile navigation
+(function () {
+  const nav = document.querySelector('.nav');
+  const toggle = nav && nav.querySelector('.nav__toggle');
+  if (!toggle) return;
+
+  const setOpen = (open) => {
+    nav.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  };
+  toggle.addEventListener('click', () => setOpen(!nav.classList.contains('is-open')));
+  nav.querySelectorAll('.nav__links a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+  document.addEventListener('click', (e) => { if (!nav.contains(e.target)) setOpen(false); });
+})();
+
+// Pinned menu: the logo stays on the left and the links on the right. Once the
+// page scrolls, a full-width frosted bar fades in behind them; the menu hides
+// while scrolling down and returns on scroll up. The text colour flips between
+// light and dark to suit whatever is behind the menu.
+(function () {
+  const nav = document.querySelector('.nav');
+  const logo = nav && nav.querySelector('.nav__logo');
+  const links = nav && nav.querySelector('.nav__links');
+  if (!logo || !links) return;
+
+  const wide = window.matchMedia('(min-width: 861px)');
+  let scrolled = window.scrollY > 40;
+
+  const layout = () => nav.classList.toggle('is-scrolled', scrolled);
+
+  // Slide the menu away while scrolling down; bring it back on any scroll up.
+  let lastY = window.scrollY;
+  const direction = () => {
+    const yNow = window.scrollY;
+    const dy = yNow - lastY;
+    if (Math.abs(dy) < 4) return;
+    const keep = yNow < 120 || nav.classList.contains('is-open') || nav.contains(document.activeElement);
+    nav.classList.toggle('is-hidden', dy > 0 && !keep);
+    lastY = yNow;
+  };
+
+  // --- What colour is behind the menu? ---
+  const skip = (el) => nav.contains(el) || el.closest('.toc');
+  const lumAt = (x, y) => backdropLuminance(x, y, skip);
   const theme = () => {
     const r = links.getBoundingClientRect();
     const target = wide.matches && r.width ? r : nav.querySelector('.nav__toggle').getBoundingClientRect();
@@ -115,19 +116,16 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
     queued = false;
     const s = window.scrollY > 40;
     if (s !== scrolled) { scrolled = s; layout(); }
+    direction();
     theme();
   };
   const queue = () => { if (!queued) { queued = true; requestAnimationFrame(update); } };
 
   layout();
   theme();
-  requestAnimationFrame(() => requestAnimationFrame(() => nav.classList.add('nav--ready')));
   window.addEventListener('scroll', queue, { passive: true });
-  window.addEventListener('resize', () => { layout(); queue(); });
-  window.addEventListener('load', () => { layout(); theme(); });
-  if (document.fonts) document.fonts.ready.then(() => { layout(); theme(); });
-  // The menu takes ~.8s to move; check the colour again once it has settled.
-  links.addEventListener('transitionend', (e) => { if (e.propertyName === 'transform') theme(); });
+  window.addEventListener('resize', queue);
+  window.addEventListener('load', theme);
 })();
 
 // Hero headline: wrap each word so CSS can bring them into focus one by one.
