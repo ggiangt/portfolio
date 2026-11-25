@@ -225,17 +225,18 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(#fff 0%, var(--cream) 100%);
   scroll-margin-top: 0;
 }
-.works__grid { display: grid; gap: 20px; max-width: 989px; margin-inline: auto; }
+.works__grid { display: grid; gap: 20px; max-width: 1240px; margin-inline: auto; }
 .works__row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
   gap: 32px 21px;
 }
-.works__row--wide-first { grid-template-columns: minmax(0, 534fr) minmax(0, 434fr); }
 
 .work { display: block; }
-.work__media { aspect-ratio: var(--ratio, 3 / 2); overflow: hidden; background: var(--mist); }
+/* Every cover is the same size: equal columns and one shared shape (covers
+   are cropped to fit). */
+.work__media { aspect-ratio: 11 / 8; overflow: hidden; border-radius: 8px; background: var(--mist); }
 .work__media :is(img, video) {
   display: block;
   width: 100%;
@@ -515,8 +516,7 @@ a.work:focus-visible .work__title svg { transform: rotate(0deg) scale(.9); }
 
   .works { padding: 40px 20px 64px; }
   .works__grid { gap: 40px; }
-  .works__row,
-  .works__row--wide-first { grid-template-columns: minmax(0, 1fr); gap: 40px; }
+  .works__row { grid-template-columns: minmax(0, 1fr); gap: 40px; }
   .work__title { margin-top: 16px; }
   .work__desc { margin-top: 10px; }
 
