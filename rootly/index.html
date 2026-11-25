@@ -29,19 +29,18 @@
     <a href="https://drive.google.com/file/d/1SyA3VrIay-27mWClztjOkhmCMgIzXOL6/view?usp=sharing" target="_blank" rel="noopener">Resume</a>
     <a class="nav__mail" href="mailto:giangt.edu@gmail.com">Get in touch</a>
   </div>
-  <a class="pill" href="mailto:giangt.edu@gmail.com">Get in touch</a>
   <button class="nav__toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-links"><span></span><span></span></button>
 </nav>
 
-<header class="masthead container">
+<header class="masthead masthead--stacked container">
   <div class="masthead__title">
-    <h1 class="display">Rootly</h1>
+    <h1 class="display display--regular">Rootly</h1>
     <p class="lede">Streamlining incident response for Fortune 500 engineering teams through stellar product &amp; branding</p>
   </div>
   <dl class="meta">
     <div><dt>Role</dt><dd>Founding Design Intern</dd></div>
     <div><dt>Timeline</dt><dd>Oct – Dec 2025</dd></div>
-    <div><dt>Members</dt><dd>Lead Designer, 1 Product Manager, 5 Engineers</dd></div>
+    <div><dt>Members</dt><dd>Lead Designer<br>1 Product Manager<br>5 Engineers</dd></div>
   </dl>
 </header>
 
@@ -61,44 +60,49 @@
     <section id="overview" data-toc="Overview" class="section">
       <div class="split split--aside">
         <h2 class="heading">Overview</h2>
-        <div class="titleblock">
-        <p class="eyebrow">TL; DR</p>
-        <h3 class="title">Rootly is an AI-native, enterprise-grade on-call and incident management platform</h3>
-      </div>
-      </div>
-      <p class="body measure">Rootly is loved by 100's of leading companies such as Cisco, NVIDIA, Figma, Squarespace, Canva, and more.</p>
-
-      <div class="panel panel--midnight hmw hmw--solo">
-        <div class="hmw__text">
-          <p class="title on-dark-muted">The Challenge</p>
-          <h3 class="title on-dark">Rootly's aggressive product velocity helped secure marquee enterprise customers, but rapid shipping introduced UX inconsistencies that created friction during competitive evaluations against mature incumbents like PagerDuty, Opsgenie and Incident.io.</h3>
+        <div class="titleblock titleblock--fill">
+          <p class="eyebrow">TL; DR</p>
+          <h3 class="title">Rootly is an AI-native, enterprise-grade on-call and incident management platform</h3>
+          <p class="body">Rootly is loved by 100's of leading companies such as Cisco, NVIDIA, Figma, Squarespace, Canva, and more.</p>
         </div>
       </div>
+
+      <div class="titleblock titleblock--wide">
+        <p class="eyebrow">The Challenge</p>
+        <h3 class="title">Navigating Rootly as the first-ever and sole design intern</h3>
+      </div>
+      <p class="body measure">Rootly's aggressive product velocity helped secure marquee enterprise customers, but rapid shipping introduced UX inconsistencies that created friction during competitive evaluations against mature incumbents like PagerDuty, Opsgenie and Incident.io.</p>
     </section>
 
-    <!-- Two tracks -->
+    <!-- Three tracks, as a bento -->
     <section class="section section--tight">
-      <div class="pairs">
-        <div class="pair">
-          <div class="panel panel--lilac pair__media"><img src="../assets/rootly/02.png" width="1066" height="596" alt="Workflow condition builder with clearer, plain-language rules" loading="lazy"></div>
-          <div class="pair__text">
-            <div class="titleblock">
-        <p class="eyebrow">From papercuts to product confidence</p>
-        <h3 class="title">Led an initiative of low-effort, high-impact UX improvements, raising product quality</h3>
-      </div>
+      <div class="bento">
+        <article class="bento__card bento__card--wide bento__card--accent">
+          <div class="bento__text">
+            <div>
+              <p class="eyebrow">From papercuts to product confidence</p>
+              <h3 class="title">Led an initiative of low-effort, high-impact UX improvements, raising product quality</h3>
+            </div>
             <p class="body">Some areas I worked on: Escalation Policy repeats and fallback, workflow condition, and custom form fields.</p>
           </div>
-        </div>
-        <div class="pair">
-          <div class="panel panel--lilac pair__media"><img src="../assets/rootly/03.png" width="1433" height="752" alt="A generated SREcon event visual in the Rootly brand style" loading="lazy"></div>
-          <div class="pair__text">
-            <div class="titleblock">
-        <p class="eyebrow">Leverage AI for speed and scalability</p>
-        <h3 class="title">10x workflow for brand &amp; marketing</h3>
-      </div>
-            <p class="body">An AI-powered asset generation system that moved brand production from dependency on one designer to team autonomy.</p>
+          <div class="bento__media bento__media--bleed"><img src="../assets/rootly/02.png" width="1066" height="596" alt="Workflow condition builder with clearer, plain-language rules" loading="lazy"></div>
+        </article>
+
+        <article class="bento__card bento__card--light">
+          <div class="bento__text">
+            <p class="eyebrow">Leverage AI for speed and scalability</p>
+            <h3 class="title">10x workflow for brand &amp; marketing</h3>
           </div>
-        </div>
+          <div class="bento__media bento__media--inset"><img src="../assets/rootly/03.png" width="1433" height="752" alt="A generated SREcon event visual in the Rootly brand style" loading="lazy"></div>
+        </article>
+
+        <article class="bento__card bento__card--dark">
+          <div class="bento__text">
+            <p class="eyebrow">Improving core platform features</p>
+            <h3 class="title">Better view of many teams on-call schedules</h3>
+          </div>
+          <div class="bento__media bento__media--bleed"><img src="../assets/rootly/04.png" width="2048" height="1573" alt="The redesigned on-call schedule with every team in one timeline" loading="lazy"></div>
+        </article>
       </div>
     </section>
 
@@ -163,11 +167,11 @@
       </div>
 
       <figure>
-        <div class="panel panel--lilac showcase showcase--snug"><img src="../assets/rootly/08.png" width="1284" height="838" alt="Declaring an incident from a command menu" loading="lazy"></div>
+        <div class="panel panel--lilac showcase showcase--flush"><img src="../assets/rootly/08.png" width="1284" height="838" alt="Declaring an incident from a command menu" loading="lazy"></div>
         <figcaption class="body caption">Page or declare an incident anywhere in the application. Quickly escalate an alert to an incident by auto-assigning teams and services</figcaption>
       </figure>
       <figure>
-        <div class="panel panel--mist showcase showcase--snug"><img src="../assets/rootly/09.png" width="1964" height="873" alt="Escalation policy editor showing next steps and expected behaviour" loading="lazy"></div>
+        <div class="panel panel--mist showcase showcase--flush"><img src="../assets/rootly/09.png" width="1964" height="873" alt="Escalation policy editor showing next steps and expected behaviour" loading="lazy"></div>
         <figcaption class="body caption">Removed ambiguity in on-call escalation flows by surfacing next-step actions and expected behaviors</figcaption>
       </figure>
     </section>
@@ -185,7 +189,7 @@
         <p>The marketing team required a steady stream of visual assets, from social media posts, blog banners, and speaker cards to across multiple touchpoints. Initially, production was entirely manual and bottlenecked through a single designer (me), making the workflow unsustainable and impossible to scale as demand grew.</p>
         <p>I designed and implemented an AI-powered asset generation system that transformed our production process from dependency to autonomy. In parallel, I took ownership of various verticals in our first brand guideline, developing what became distinct sub-brand expressions.</p>
       </div>
-      <div class="panel panel--lilac showcase showcase--tall">
+      <div class="panel panel--lilac showcase showcase--flush">
         <img src="../assets/rootly/10.jpg" width="1728" height="2048" alt="A board of Rootly brand assets: event graphics, social posts and speaker cards" loading="lazy">
       </div>
     </section>
@@ -199,7 +203,7 @@
         <h3 class="title title--strong">Here, I’ve learnt more than I could ever asked for.</h3>
       </div>
 
-      <ul class="learned">
+      <ul class="learned learned--rows">
         <li>
           <h4>First-ever intern, at my first-ever internship</h4>
           <p class="body">Stepping in as Rootly’s first and only design intern meant leaping entirely into the unknown. I embraced that ambiguity to leave a lasting mark: shipping 80+ UX improvements, authoring their first-ever brand guidelines, and saving teams 50+ hours per campaign through generative brand tools. I didn’t just design interfaces but helped shape a design-first culture, a journey that ultimately earned me a billboard on the Times Square, and the <a class="link" href="https://uwaterloo.ca/co-operative-education/blog/times-square-design-determination" target="_blank" rel="noopener">Co-op Student of the Year award</a>!</p>
@@ -220,13 +224,6 @@
       </div>
     </section>
 
-    <a class="next" href="../purepoker/">
-      <div>
-        <p class="eyebrow eyebrow--soft">Next case study</p>
-        <p class="display">Pure</p>
-      </div>
-      <svg class="next__arrow" viewBox="0 0 256 256" aria-hidden="true"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></svg>
-    </a>
 
   </div>
 </main>
@@ -241,7 +238,6 @@
         <li><a href="https://x.com/giangtr0901" target="_blank" rel="noopener">TWITTER</a></li>
       </ul>
       <a class="pill" href="mailto:giangt.edu@gmail.com">Get in touch</a>
-      <p class="site-footer__note">Created with love &amp; an endless supply of Vietnamese iced coffees</p>
     </div>
     <div class="site-footer__cta">
       <p class="site-footer__script">Got a vision?</p>

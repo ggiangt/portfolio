@@ -96,14 +96,15 @@ video { object-fit: cover; background: var(--tone-50); }
   line-height: 1.2;
   letter-spacing: -.022em;
 }
-.lede { font-weight: 300; font-size: 20px; line-height: 1.36; }
+.display--regular { font-weight: 100; }
+.lede { font-weight: 300; font-size: 20px; line-height: 1.36; color: var(--body); }
 .heading { font-weight: 300; font-size: 30px; line-height: 1.2; color: var(--ink-muted); }
 .eyebrow { font-family: var(--serif); font-weight: 100; font-size: 17px; line-height: 1.36; color: var(--tone-600); }
 .eyebrow--soft { color: var(--tone-400); }
 .title { font-weight: 400; font-size: 20px; line-height: 1.1; text-wrap: balance; }
 .title--strong { font-weight: 500; letter-spacing: -.02em; }
-.body { font-weight: 350; font-size: 15px; line-height: 1.37; color: var(--ink-muted); }
-.small { font-weight: 300; font-size: 12px; line-height: 1.36; color: var(--ink-muted); }
+.body { font-weight: 350; font-size: 15px; line-height: 1.37; color: var(--body); }
+.small { font-weight: 300; font-size: 12px; line-height: 1.36; color: var(--body); }
 .label { font-weight: 300; font-size: 17px; line-height: 1.36; color: var(--on-navy-label); }
 
 .on-dark { color: #fff; }
@@ -117,6 +118,10 @@ video { object-fit: cover; background: var(--tone-50); }
 .titleblock { display: grid; gap: var(--s-2); max-width: 470px; }
 .titleblock--wide { max-width: 625px; }
 .titleblock--narrow { max-width: 325px; }
+/* Uses the whole column and lets lines run full rather than balancing them. */
+.titleblock--fill { max-width: none; }
+.titleblock--fill .title { text-wrap: pretty; }
+.titleblock--fill .body { margin-top: var(--s-2); }
 
 /* ---------- Rhythm ---------- */
 .section { margin-top: var(--s-8); }
@@ -132,7 +137,8 @@ video { object-fit: cover; background: var(--tone-50); }
 .section > .panel + .panel,
 .section > .titleblock + .panel { margin-top: var(--s-5); }
 
-.rule { height: 0; margin: var(--s-6) 0 0; border: 0; border-top: 1px solid var(--line); }
+/* Dividers between parts: a hairline at 40% of the body line strength. */
+.rule { height: 0; margin: var(--s-6) 0 0; border: 0; border-top: .5px solid rgba(0, 0, 0, .2); }
 .rule--spaced { margin-top: var(--s-9); }
 
 /* ---------- Panels ---------- */
@@ -209,7 +215,7 @@ video { object-fit: cover; background: var(--tone-50); }
   font-size: 15px;
   line-height: 1.1;
   text-align: center;
-  color: var(--ink-muted);
+  color: var(--body);
 }
 
 .section > .feature { margin-top: 80px; }
@@ -239,7 +245,7 @@ video { object-fit: cover; background: var(--tone-50); }
   gap: 12px 38px;
   padding: 75px 24px 0;
   font-weight: 400;
-  color: var(--ink-muted);
+  color: var(--body);
 }
 .problem__text p { line-height: 1.2; }
 .problem__text ul { padding-left: 1.1em; list-style: disc; line-height: 1.15; letter-spacing: 0; }
@@ -313,7 +319,7 @@ video { object-fit: cover; background: var(--tone-50); }
   padding: 63px 24px 61px;
 }
 .flaws img { width: 100%; }
-.flaws figcaption { margin-top: 12px; font-weight: 300; font-size: 12px; line-height: 1.36; color: var(--ink-muted); }
+.flaws figcaption { margin-top: 12px; font-weight: 300; font-size: 12px; line-height: 1.36; color: var(--body); }
 .flaws strong { display: block; margin-bottom: 4px; font-weight: 400; color: var(--ink); }
 
 .redirect {
@@ -389,7 +395,7 @@ video { object-fit: cover; background: var(--tone-50); }
 .checklist { display: grid; gap: 12px; max-width: 349px; font-weight: 300; font-size: 13px; line-height: 1.36; color: #333; }
 .checklist li { display: flex; align-items: flex-start; gap: 10px; }
 .checklist svg { flex: none; width: 10px; height: 10px; margin-top: 4px; color: #948f88; }
-.checklist--muted { max-width: 276px; font-size: 12px; color: var(--ink-muted); }
+.checklist--muted { max-width: 276px; font-size: 12px; color: var(--body); }
 .checklist--muted svg { width: 15px; height: 15px; margin-top: 0; color: inherit; }
 
 /* ---------- Considerations pairs ---------- */
@@ -512,6 +518,19 @@ video { object-fit: cover; background: var(--tone-50); }
 .learned .learned__cursor { height: 112px; margin: -22px 0 -22px -26px; }
 .learned h4 { margin-top: 10px; font-weight: 350; font-size: 15px; line-height: 1.37; }
 .learned .body { margin-top: 10px; }
+/* Rows: each takeaway runs across the page, its heading on the left (in the
+   same column as section headings) and the story on the right. */
+.learned--rows { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.learned--rows li {
+  display: grid;
+  grid-template-columns: 211px minmax(0, 1fr);
+  gap: var(--s-3) 20px;
+  padding: var(--s-5) 0;
+  border-top: .5px solid rgba(0, 0, 0, .2);
+}
+.learned--rows li:last-child { border-bottom: .5px solid rgba(0, 0, 0, .2); }
+.learned--rows h4 { margin: 0; }
+.learned--rows .body { margin: 0; max-width: 651px; }
 
 /* ---------- Footnote ---------- */
 .footnote { max-width: 627px; margin: var(--s-8) auto 0; }
@@ -526,9 +545,8 @@ video { object-fit: cover; background: var(--tone-50); }
   .before-after,
   .rule,
   .footnote > *,
-  .next,
-  .section > :not(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles),
-  :is(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles) > *
+  .section > :not(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles, .bento),
+  :is(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles, .bento) > *
 ) {
   transition:
     opacity .7s cubic-bezier(.2, .6, .2, 1) var(--reveal-delay, 0ms),
@@ -540,9 +558,8 @@ video { object-fit: cover; background: var(--tone-50); }
   .before-after,
   .rule,
   .footnote > *,
-  .next,
-  .section > :not(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles),
-  :is(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles) > *
+  .section > :not(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles, .bento),
+  :is(.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles, .bento) > *
 ):not(.is-visible) {
   opacity: 0;
   transform: translateY(20px);
@@ -651,6 +668,7 @@ video { object-fit: cover; background: var(--tone-50); }
   .outcome { padding: 24px; }
 
   .learned { grid-template-columns: minmax(0, 1fr); }
+  .learned--rows li { grid-template-columns: minmax(0, 1fr); padding: var(--s-4) 0; }
 }
 
 @media (max-width: 520px) {
@@ -703,10 +721,16 @@ a { color: inherit; }
 .link:hover { color: var(--tone-900); }
 
 /* ---------- Masthead facts ---------- */
-.meta { flex: none; display: grid; gap: var(--s-3); width: min(260px, 100%); margin: 6px 0 0; }
-.meta div { display: grid; gap: 2px; }
-.meta dt { font-family: var(--serif); font-weight: 100; font-size: 17px; line-height: 1.36; color: var(--tone-600); }
-.meta dd { margin: 0; font-size: 15px; line-height: 1.37; color: var(--ink-muted); }
+.meta { flex: none; display: grid; gap: var(--s-2); width: min(220px, 100%); margin: 6px 0 0; }
+.meta div { display: grid; align-content: start; gap: 6px; }
+.meta dt { font-family: var(--serif); font-weight: 100; font-size: 14px; line-height: 1.36; color: var(--tone-600); }
+.meta dd { margin: 0; font-weight: 300; font-size: 13px; line-height: 1.4; color: var(--body); }
+
+/* Iteration: facts in one row under the title */
+.masthead--stacked { flex-direction: column; gap: var(--s-4); }
+.masthead--stacked .masthead__title { max-width: 520px; }
+.masthead--stacked .meta { display: flex; flex-wrap: wrap; gap: var(--s-2) 40px; width: auto; margin: 0; }
+.masthead--stacked .meta div { max-width: 240px; }
 
 /* ---------- Hero with a still ---------- */
 .hero__frame img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
@@ -758,7 +782,7 @@ a { color: inherit; }
 .tile__media--pad img { border-radius: var(--r-sm) var(--r-sm) 0 0; }
 .tile__media--grey { background: var(--grey); }
 .tile__media--dark { background: var(--tone-950); }
-.tile figcaption { margin-top: 12px; font-weight: 300; font-size: 12px; line-height: 1.36; color: var(--ink-muted); }
+.tile figcaption { margin-top: 12px; font-weight: 300; font-size: 12px; line-height: 1.36; color: var(--body); }
 .tile figcaption strong { display: block; margin-bottom: 4px; font-weight: 400; font-size: 15px; line-height: 1.37; letter-spacing: -.01em; color: var(--ink); }
 .tile--text { padding: 24px 24px 22px; border-radius: var(--r-card); background: var(--tone-50); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .04); }
 .tile--text .eyebrow { margin-bottom: var(--s-2); }
@@ -789,21 +813,6 @@ a { color: inherit; }
 .phones figure { flex: 0 1 230px; min-width: 0; padding-bottom: 28px; }
 .phones video { width: 100%; aspect-ratio: 1080 / 2166; border-radius: 12% / 5.8%; background: #000; }
 .phones figcaption { margin-top: 16px; font-size: 15px; line-height: 1.3; text-align: center; color: var(--on-dark-soft); }
-
-/* ---------- Next project ---------- */
-.next {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: var(--s-5);
-  margin-top: var(--s-8);
-  padding-top: var(--s-5);
-  border-top: 1px solid var(--line);
-  text-decoration: none;
-}
-.next .display { margin-top: var(--s-1); }
-.next__arrow { flex: none; width: 34px; height: 34px; margin-bottom: 4px; fill: var(--tone-600); transition: transform .35s cubic-bezier(.2, .6, .2, 1); }
-.next:hover .next__arrow { transform: translate(4px, -4px); }
 
 @media (max-width: 720px) {
   .masthead:has(.meta) { flex-direction: column; }
@@ -851,7 +860,7 @@ a { color: inherit; }
 
 @media (min-width: 960px) {
   .toc {
-    top: clamp(112px, 15vh, 160px);
+    top: var(--toc-top, clamp(112px, 15vh, 160px));
     left: 30px;
     width: 138px;
     font-size: 14px;
@@ -880,9 +889,6 @@ a { color: inherit; }
   .toc__list a:hover { color: var(--ink); }
   .toc__list a[aria-current] { color: var(--tone-600); }
   .toc__list a[aria-current]::before { opacity: 1; }
-  .toc__list a.is-over { color: rgba(255, 255, 255, .7); }
-  .toc__list a.is-over:hover,
-  .toc__list a.is-over[aria-current] { color: #fff; }
 }
 
 /* Mid-width screens: nudge the page right so the menu has a column of its own. */
@@ -961,4 +967,90 @@ a { color: inherit; }
 }
 @media print {
   .toc { display: none; }
+}
+
+/* ==========================================================================
+   Bento: a wide card on top, two cards below, each pairing a short headline
+   with a screen. Media either bleeds off the card's right and bottom edges
+   or sits inset with a soft shadow.
+   ========================================================================== */
+.bento { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+
+.bento__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: var(--r-card);
+}
+.bento__card--accent { background: var(--tone-600); color: #fff; }
+.bento__card--dark { background: var(--tone-900); color: #fff; }
+.bento__card--light { background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--tone-200); }
+
+.bento__text { display: grid; gap: var(--s-2); padding: 40px 40px 0; }
+/* Type comes from the shared scale (.eyebrow, .title, .body); the coloured
+   cards only swap in the on-dark colours the rest of the case studies use. */
+.bento__text .title { max-width: 380px; }
+:is(.bento__card--accent, .bento__card--dark) .eyebrow { color: var(--on-navy-label); }
+.bento__card--accent .eyebrow { color: var(--tone-200); }
+:is(.bento__card--accent, .bento__card--dark) .body { color: var(--on-dark-soft); }
+
+/* Media that runs off the right and bottom edges of the card. */
+.bento__media--bleed {
+  position: relative;
+  flex: 1;
+  min-height: 280px;
+  margin-left: 40px;
+  overflow: hidden;
+  border-radius: 8px 0 0 0;
+  background: #fff;
+}
+/* Positioned so the screenshot fills the space without setting the card's height. */
+.bento__media--bleed img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+}
+
+/* Media that sits inside the card with a soft shadow. */
+.bento__media--inset { flex: 1; padding: 0 40px 40px; }
+.bento__media--inset img {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  object-fit: cover;
+  object-position: 72% center;
+  border-radius: 6px;
+  box-shadow: 0 14px 34px -18px rgba(0, 0, 0, .35);
+}
+
+/* Wide card: text on the left, the screen bleeding off on the right. */
+.bento__card--wide {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 40px;
+  min-height: 380px;
+}
+.bento__card--wide .bento__text { align-content: space-between; padding: 40px 0 40px 40px; }
+.bento__card--wide .bento__media--bleed { margin: 40px 0 0; min-height: 0; }
+.bento__card--wide .bento__media--bleed img { width: 125%; }
+
+@media (max-width: 720px) {
+  .bento { grid-template-columns: minmax(0, 1fr); }
+  .bento__card { gap: 24px; }
+  .bento__text { padding: 28px 24px 0; }
+  .bento__card--wide { display: flex; min-height: 0; gap: 24px; }
+  .bento__card--wide .bento__text { gap: 18px; padding: 28px 24px 0; }
+  .bento__card--wide .bento__media--bleed { height: 240px; margin-left: 24px; flex: none; }
+  .bento__media--bleed { margin-left: 24px; min-height: 240px; }
+  .bento__media--inset { padding: 0 24px 24px; }
+  .bento__media--inset img { min-height: 0; aspect-ratio: 4 / 3; }
 }

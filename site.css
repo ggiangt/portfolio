@@ -26,7 +26,8 @@
   --sky: #cae0fa;
   --mist: #f0f7ff;
   --cream: #fffdf8;
-  --slate: rgba(93, 111, 135, .98);
+  --slate: #5d6f87;
+  --body: #5d6f87;          /* body copy across the site */
 
   --font-sans: "PP Mori", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-serif: "PP Eiko", "Iowan Old Style", Georgia, serif;
@@ -38,7 +39,7 @@
 /* ---------- Navigation ---------- */
 .nav {
   position: relative;
-  z-index: 20;
+  z-index: 50;
   display: flex;
   align-items: center;
   gap: 40px;
@@ -54,24 +55,67 @@
 .nav--over { position: absolute; inset: 0 0 auto; color: var(--mist); }
 
 .nav a { color: inherit; text-decoration: none; }
-.nav__logo { flex: none; display: block; margin-right: 41px; }
+.nav__logo { flex: none; display: block; }
 .nav__logo img { display: block; width: 55px; height: auto; }
 
-.nav__links { display: flex; align-items: center; gap: 40px; margin-right: auto; }
-.nav__links a { position: relative; opacity: .92; transition: opacity .2s; }
-.nav__links a::after {
+/* The bar itself only holds the space; the logo and links are pinned to the
+   viewport so they stay visible while scrolling. Text colour follows the
+   background underneath (site.js sets .is-on-dark / .is-on-light). */
+.nav.is-on-dark { color: var(--mist); }
+.nav.is-on-light { color: var(--navy); }
+
+/* Once the page scrolls, a frosted bar runs the full width behind the logo
+   and links. It, the logo and the links slide away while scrolling down and
+   come back on any scroll up (site.js sets .is-scrolled / .is-hidden). */
+.nav::before {
   content: "";
-  position: absolute;
-  left: 0; right: 0; bottom: -3px;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform .3s cubic-bezier(.2, .6, .2, 1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 90px;
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  background: rgba(255, 255, 255, .6);
+  box-shadow: 0 1px 0 rgba(2, 33, 97, .06);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .35s, background-color .35s, box-shadow .35s, translate .4s cubic-bezier(.2, .7, .2, 1);
 }
+.nav.is-on-dark::before { background: rgba(6, 20, 66, .28); box-shadow: 0 1px 0 rgba(255, 255, 255, .08); }
+.nav.is-scrolled::before { opacity: 1; }
+.nav__logo,
+.nav__links,
+.nav__toggle { transition: color .35s, translate .4s cubic-bezier(.2, .7, .2, 1); }
+.nav.is-hidden::before,
+.nav.is-hidden .nav__logo,
+.nav.is-hidden .nav__toggle { translate: 0 -120%; }
+@media (min-width: 861px) {
+  .nav.is-hidden .nav__links { translate: 0 -120%; }
+}
+
+@media (min-width: 861px) {
+  /* Logo pinned on the left, menu pinned on the right. */
+  .nav__logo {
+    position: fixed;
+    top: 20px;
+    left: 80px;
+  }
+  .nav__links {
+    position: fixed;
+    top: 23px;
+    right: 40px;
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    padding: 10px 24px;
+    border-radius: 12px;
+  }
+}
+.nav__links a { font-family: var(--font-serif); font-weight: 100; font-size: 15px; letter-spacing: 0; opacity: .92; transition: opacity .2s; }
 .nav__links a:hover { opacity: 1; }
-.nav__links a:hover::after,
-.nav__links a[aria-current="page"]::after { transform: scaleX(1); }
+.nav__links a[aria-current="page"] { font-style: italic; opacity: .55; }
+.nav__links a[aria-current="page"]:hover { opacity: 1; }
 
 .nav__toggle,
 .nav__links .nav__mail { display: none; }
@@ -94,8 +138,6 @@
   transition: background-color .25s, color .25s, border-color .25s;
 }
 .pill:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
-.nav--over .pill { color: var(--sky); }
-.nav--over .pill:hover { background: #fff; border-color: #fff; color: var(--navy); }
 
 /* ---------- Footer ---------- */
 .site-footer {
@@ -103,7 +145,7 @@
   isolation: isolate;
   overflow: hidden;
   margin-top: var(--footer-gap, 0);
-  padding: 150px 48px 4px;
+  padding: 150px 48px 58px;
   font-family: var(--font-sans);
   color: var(--navy);
 }
@@ -135,21 +177,15 @@
 .site-footer__social a { color: var(--blue); text-decoration: none; transition: color .2s; }
 .site-footer__social a:hover { color: var(--navy); }
 .site-footer .pill { margin-top: 26px; }
-.site-footer__note {
-  margin: 34px 0 0;
-  font-weight: 400;
-  font-size: 15px;
-  line-height: 1.3;
-  letter-spacing: 0;
-}
 .site-footer__cta { margin: -5px 0 0; text-align: right; }
 .site-footer__script {
   margin: 0;
-  font-family: var(--font-script);
-  font-weight: 700;
-  font-size: 45px;
-  line-height: 1.2;
-  letter-spacing: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 42px;
+  line-height: 1.15;
+  letter-spacing: -.02em;
 }
 .site-footer__connect {
   margin: 0;
@@ -165,18 +201,21 @@
    ========================================================================== */
 @media (max-width: 860px) {
   .nav { height: 72px; padding: 0 20px; gap: 16px; }
-  .nav__logo { margin-right: auto; }
+  .nav::before { height: 72px; }
+  .nav__logo { position: fixed; top: 14px; left: 20px; }
   .nav__logo img { width: 46px; }
 
   .nav__toggle {
+    position: fixed;
+    top: 14px;
+    right: 16px;
     display: grid;
     place-items: center;
-    width: 40px;
-    height: 40px;
-    margin-right: -8px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     border: 0;
-    background: none;
+    border-radius: 12px;
     color: inherit;
     cursor: pointer;
   }
@@ -192,10 +231,9 @@
   .nav.is-open .nav__toggle span:first-child { transform: rotate(45deg); }
   .nav.is-open .nav__toggle span:last-child { transform: rotate(-45deg); }
 
-  .nav > .pill { display: none; }
   .nav__links {
-    position: absolute;
-    top: 64px;
+    position: fixed;
+    top: 66px;
     left: 12px;
     right: 12px;
     flex-direction: column;
@@ -215,18 +253,65 @@
     transition: opacity .25s, transform .25s, visibility .25s;
   }
   .nav.is-open .nav__links { opacity: 1; visibility: visible; transform: none; }
+  .nav.is-on-dark .nav__links,
+  .nav.is-on-light .nav__links {
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 18px 40px -18px rgba(2, 33, 97, .35);
+  }
   .nav__links a { padding: 13px 0; font-size: 17px; opacity: 1; }
   .nav__links .nav__mail { display: block; color: var(--blue); }
   .nav__links a + a { border-top: 1px solid rgba(2, 33, 97, .1); }
-  .nav__links a::after { display: none; }
 
-  .site-footer { padding: 96px 20px 12px; }
+  .site-footer { padding: 96px 20px 66px; }
   .site-footer__inner { flex-direction: column-reverse; gap: 40px; }
   .site-footer__cta { margin: 0; text-align: left; }
-  .site-footer__script { font-size: 40px; line-height: 1.3; }
+  .site-footer__script { font-size: 36px; line-height: 1.2; }
   .site-footer__connect { margin-top: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav__links, .nav__links a::after, .nav__toggle span, .pill { transition: none; }
+  .nav__links, .nav__toggle span, .pill, .nav__logo, .nav__toggle, .nav::before { transition: none; }
+}
+
+/* ---------- Cursor ---------- */
+/* With a mouse, the arrow becomes a single sparkle (site.js draws it and moves
+   it with the pointer): blue on light areas, white on dark ones, and it turns
+   when hovering anything clickable. The Beyond canvas keeps its grab hand. */
+.cursor-sparkle { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  html.has-sparkle,
+  html.has-sparkle * { cursor: none; }
+  html.has-sparkle .beyond__stage,
+  html.has-sparkle .beyond__stage * { cursor: grab; }
+  html.has-sparkle .beyond__stage.is-dragging,
+  html.has-sparkle .beyond__stage.is-dragging * { cursor: grabbing; }
+
+  .cursor-sparkle {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+    display: block;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    color: var(--blue);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s, color .25s;
+  }
+  .cursor-sparkle.is-shown { opacity: 1; }
+  html.cursor-on-dark .cursor-sparkle { color: #fff; }
+  .cursor-sparkle svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transition: transform .5s cubic-bezier(.3, 1.4, .5, 1);
+  }
+  .cursor-sparkle.is-hovering svg { transform: rotate(90deg) scale(1.25); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cursor-sparkle svg { transition: none; }
 }
