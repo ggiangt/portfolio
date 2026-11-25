@@ -208,6 +208,71 @@ const backdropLuminance = (() => {
   setTimeout(() => sky.classList.add('is-lit'), (t + 0.35) * 1000);
 })();
 
+// Hero sky: click (or tap) anywhere on the blue to stamp a sparkling star there.
+(function () {
+  const hero = document.querySelector('.hero');
+  const sky = hero && hero.querySelector('.hero__stars');
+  if (!sky || !sky.getScreenCTM) return;
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const layer = document.createElementNS(NS, 'g');
+  layer.setAttribute('class', 'hero__stamps');
+  sky.append(layer);
+  const MAX = 40;
+
+  hero.addEventListener('click', (e) => {
+    if (e.target.closest('a, button')) return;
+    // Only on the sky, not the white part of the cover.
+    if (backdropLuminance(e.clientX, e.clientY) >= 0.3) return;
+    const ctm = sky.getScreenCTM();
+    if (!ctm) return;
+    const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    const r = 4 + Math.random() * 3;
+    const q = r * 0.15;
+    const { x, y } = pt;
+
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'stamp');
+    g.style.setProperty('--tw-dur', `${(2.4 + Math.random() * 2.4).toFixed(2)}s`);
+    g.style.setProperty('--tw-delay', `${(Math.random() * 1.5).toFixed(2)}s`);
+    const halo = document.createElementNS(NS, 'circle');
+    halo.setAttribute('class', 'star__halo');
+    halo.setAttribute('cx', x);
+    halo.setAttribute('cy', y);
+    halo.setAttribute('r', (r * 1.5).toFixed(2));
+    const star = document.createElementNS(NS, 'path');
+    star.setAttribute('d', `M${x},${y - r} Q${x + q},${y - q} ${x + r},${y} Q${x + q},${y + q} ${x},${y + r} Q${x - q},${y + q} ${x - r},${y} Q${x - q},${y - q} ${x},${y - r}Z`);
+    g.append(halo, star);
+
+    const ring = document.createElementNS(NS, 'circle');
+    ring.setAttribute('class', 'stamp__ring');
+    ring.setAttribute('cx', x);
+    ring.setAttribute('cy', y);
+    ring.setAttribute('r', (r * 1.2).toFixed(2));
+    ring.addEventListener('animationend', () => ring.remove());
+
+    layer.append(g, ring);
+    const stamps = layer.querySelectorAll('.stamp');
+    if (stamps.length > MAX) stamps[0].remove();
+  });
+})();
+
+// Hero parallax: feed the scroll position to CSS while the hero is visible.
+(function () {
+  const hero = document.querySelector('.hero');
+  if (!hero || !root.classList.contains('js-motion')) return;
+  let queued = false;
+  const update = () => {
+    queued = false;
+    const y = Math.min(window.scrollY, hero.offsetHeight);
+    hero.style.setProperty('--scroll', y.toFixed(1));
+  };
+  window.addEventListener('scroll', () => {
+    if (!queued) { queued = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  update();
+})();
+
 // Reveal on scroll: fade blocks up as they enter the viewport.
 (function () {
   const isHome = root.classList.contains('js-motion');

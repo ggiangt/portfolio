@@ -93,6 +93,39 @@ a { color: inherit; text-decoration: none; }
     twinkle var(--tw-dur, 3s) ease-in-out calc(1.8s + var(--tw-delay, 0s)) infinite;
 }
 
+/* Stars the visitor stamps into the sky by clicking the blue (site.js). Each
+   pops in with a ring of light, then twinkles like the rest. */
+.hero__stamps .stamp {
+  fill: #fff;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, .9)) drop-shadow(0 0 6px rgba(202, 224, 250, .5));
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    stamp-in .7s cubic-bezier(.3, 1.6, .5, 1) both,
+    twinkle var(--tw-dur, 3s) ease-in-out calc(.9s + var(--tw-delay, 0s)) infinite;
+}
+.hero__stamps .star__halo { fill: rgba(220, 235, 255, .35); filter: blur(2.5px); }
+.hero__stamps .stamp__ring {
+  fill: none;
+  stroke: rgba(255, 255, 255, .85);
+  stroke-width: .6;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: stamp-ring .9s ease-out forwards;
+}
+@keyframes stamp-in {
+  from { opacity: 0; transform: scale(0) rotate(-90deg); }
+  to { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes stamp-ring {
+  from { opacity: 1; transform: scale(.3); }
+  to { opacity: 0; transform: scale(3.2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__stamps .stamp, .hero__stamps .stamp__ring { animation: none; }
+  .hero__stamps .stamp__ring { display: none; }
+}
+
 .hero__sparkle {
   position: absolute;
   top: 63px;
@@ -123,6 +156,13 @@ a { color: inherit; text-decoration: none; }
   0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
   50% { opacity: 0; transform: scale(.15) rotate(45deg); }
 }
+/* Parallax (site.js sets --scroll while the hero is on screen): the sky
+   lags behind the page, the far constellations a little, the big sparkle
+   more. Uses the translate property so it stacks with the sparkle's own
+   rotate/scale animation. */
+.js-motion .hero__stars { translate: 0 calc(var(--scroll, 0) * .22px); will-change: translate; }
+.js-motion .hero__sparkle { translate: 0 calc(var(--scroll, 0) * .4px); will-change: translate; }
+
 @keyframes sparkle {
   0%, 100% { transform: rotate(-42deg) scale(1); opacity: .86; }
   50% { transform: rotate(-30deg) scale(1.06); opacity: 1; }
