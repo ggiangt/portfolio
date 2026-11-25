@@ -852,14 +852,16 @@ const backdropLuminance = (() => {
 })();
 
 // Cursor: a single sparkle follows the mouse in place of the arrow. It turns
-// when hovering anything clickable, and swaps from blue to white over dark
+// when hovering anything clickable (opening a "See project" label beside it on
+// case study cards), and swaps from blue to white over dark
 // areas so it never disappears into the background.
 (function () {
   if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   const spark = document.createElement('div');
   spark.className = 'cursor-sparkle';
   spark.setAttribute('aria-hidden', 'true');
-  spark.innerHTML = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 1.5Q13.4 10.6 22.5 12Q13.4 13.4 12 22.5Q10.6 13.4 1.5 12Q10.6 10.6 12 1.5Z"/></svg>';
+  spark.innerHTML = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 1.5Q13.4 10.6 22.5 12Q13.4 13.4 12 22.5Q10.6 13.4 1.5 12Q10.6 10.6 12 1.5Z"/></svg>'
+    + '<span class="cursor-sparkle__label">See project</span>';
   document.body.append(spark);
   root.classList.add('has-sparkle');
 
@@ -880,6 +882,8 @@ const backdropLuminance = (() => {
     const inCanvas = !!(t && t.closest('.beyond__stage'));
     spark.classList.toggle('is-shown', !inCanvas);
     spark.classList.toggle('is-hovering', !!(t && t.closest(clickable)));
+    // Case study cards also get a "See project" label (not the coming-soon one).
+    spark.classList.toggle('is-project', !!(t && t.closest('a.work')));
     if (!queued) { queued = true; setTimeout(() => requestAnimationFrame(check), 60); }
   }, { passive: true });
   document.addEventListener('pointerout', (e) => { if (!e.relatedTarget) spark.classList.remove('is-shown'); });

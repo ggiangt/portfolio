@@ -311,7 +311,32 @@
     transition: transform .5s cubic-bezier(.3, 1.4, .5, 1);
   }
   .cursor-sparkle.is-hovering svg { transform: rotate(90deg) scale(1.25); }
+
+  /* Over a case study, a "See project" label opens out beside the sparkle. */
+  .cursor-sparkle__label {
+    position: absolute;
+    top: 50%;
+    left: 36px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: var(--navy);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.2;
+    letter-spacing: -.01em;
+    white-space: nowrap;
+    color: #fff;
+    clip-path: inset(0 100% 0 0 round 999px);
+    opacity: 0;
+    transform: translate(-6px, -50%);
+    transition: clip-path .45s cubic-bezier(.2, .8, .2, 1), opacity .25s, transform .45s cubic-bezier(.2, .8, .2, 1);
+  }
+  .cursor-sparkle.is-project .cursor-sparkle__label {
+    clip-path: inset(0 0 0 0 round 999px);
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cursor-sparkle svg { transition: none; }
+  .cursor-sparkle svg, .cursor-sparkle__label { transition: none; }
 }

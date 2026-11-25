@@ -236,7 +236,7 @@ a { color: inherit; text-decoration: none; }
 .work { display: block; }
 /* Every cover is the same size: equal columns and one shared shape (covers
    are cropped to fit). */
-.work__media { aspect-ratio: 11 / 8; overflow: hidden; border-radius: 8px; background: var(--mist); }
+.work__media { position: relative; aspect-ratio: 11 / 8; overflow: hidden; border-radius: 8px; background: var(--mist); }
 .work__media :is(img, video) {
   display: block;
   width: 100%;
@@ -244,8 +244,18 @@ a { color: inherit; text-decoration: none; }
   object-fit: cover;
   transition: transform .8s cubic-bezier(.2, .6, .2, 1);
 }
-a.work:hover .work__media :is(img, video),
-a.work:focus-visible .work__media :is(img, video) { transform: scale(1.03); }
+/* On hover a soft white veil settles over the cover. */
+.work__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, .22);
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+}
+a.work:hover .work__media::after,
+a.work:focus-visible .work__media::after { opacity: 1; }
 
 .work__title {
   display: flex;
@@ -531,5 +541,5 @@ a.work:focus-visible .work__title svg { transform: rotate(0deg) scale(.9); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .work__media :is(img, video), .work__title svg { transition: none; }
+  .work__media::after, .work__title svg { transition: none; }
 }
