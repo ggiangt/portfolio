@@ -275,18 +275,43 @@
   .nav__links, .nav__toggle span, .pill, .nav__logo, .nav__toggle, .nav::before { transition: none; }
 }
 
-/* ---------- Cursor sparkle trail (site.js) ---------- */
-.sparkle-trail {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  overflow: hidden;
-  pointer-events: none;
+/* ---------- Cursor ---------- */
+/* With a mouse, the arrow becomes a single sparkle (site.js draws it and moves
+   it with the pointer): blue on light areas, white on dark ones, and it turns
+   when hovering anything clickable. The Beyond canvas keeps its grab hand. */
+.cursor-sparkle { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  html.has-sparkle,
+  html.has-sparkle * { cursor: none; }
+  html.has-sparkle .beyond__stage,
+  html.has-sparkle .beyond__stage * { cursor: grab; }
+  html.has-sparkle .beyond__stage.is-dragging,
+  html.has-sparkle .beyond__stage.is-dragging * { cursor: grabbing; }
+
+  .cursor-sparkle {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+    display: block;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    color: var(--blue);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s, color .25s;
+  }
+  .cursor-sparkle.is-shown { opacity: 1; }
+  html.cursor-on-dark .cursor-sparkle { color: #fff; }
+  .cursor-sparkle svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transition: transform .5s cubic-bezier(.3, 1.4, .5, 1);
+  }
+  .cursor-sparkle.is-hovering svg { transform: rotate(90deg) scale(1.25); }
 }
-.sparkle-trail__spark {
-  position: absolute;
-  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
-  filter: drop-shadow(0 0 3px currentColor);
-  transform: translate(-50%, -50%);
-  will-change: transform, opacity;
+@media (prefers-reduced-motion: reduce) {
+  .cursor-sparkle svg { transition: none; }
 }

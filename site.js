@@ -851,46 +851,290 @@ const backdropLuminance = (() => {
   update();
 })();
 
-// Cursor trail: little sparkles in shades of blue follow a mouse pointer.
+// Cursor: a single sparkle follows the mouse in place of the arrow. It turns
+// when hovering anything clickable, and swaps from blue to white over dark
+// areas so it never disappears into the background.
 (function () {
-  if (reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  const spark = document.createElement('div');
+  spark.className = 'cursor-sparkle';
+  spark.setAttribute('aria-hidden', 'true');
+  spark.innerHTML = '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 1.5Q13.4 10.6 22.5 12Q13.4 13.4 12 22.5Q10.6 13.4 1.5 12Q10.6 10.6 12 1.5Z"/></svg>';
+  document.body.append(spark);
+  root.classList.add('has-sparkle');
 
-  const blues = ['#022161', '#1b4a96', '#3373bd', '#5b9be0', '#8ec0f5', '#b9d8fb'];
-  const layer = document.createElement('div');
-  layer.className = 'sparkle-trail';
-  layer.setAttribute('aria-hidden', 'true');
-  document.body.append(layer);
-
-  let lastX = -100;
-  let lastY = -100;
-  let live = 0;
-
+  const clickable = 'a, button, [role="button"], label, summary, select, input, textarea, .pill';
+  let queued = false;
+  let px = 0, py = 0;
+  const check = () => {
+    queued = false;
+    root.classList.toggle('cursor-on-dark', backdropLuminance(px, py) < 0.3);
+  };
   window.addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse') return;
-    // One sparkle every ~16px of travel keeps the trail even at any speed.
-    if (Math.hypot(e.clientX - lastX, e.clientY - lastY) < 16 || live > 40) return;
-    lastX = e.clientX;
-    lastY = e.clientY;
-
-    const spark = document.createElement('span');
-    const size = 6 + Math.random() * 9;
-    const color = blues[Math.floor(Math.random() * blues.length)];
-    spark.className = 'sparkle-trail__spark';
-    spark.style.cssText =
-      `left:${e.clientX}px;top:${e.clientY}px;width:${size}px;height:${size}px;` +
-      `background:${color};color:${color}`;
-    layer.append(spark);
-    live++;
-
-    const dx = (Math.random() - 0.5) * 30;
-    const dy = 14 + Math.random() * 26;
-    const spin = (Math.random() - 0.5) * 180;
-    spark.animate(
-      [
-        { opacity: 1, transform: 'translate(-50%, -50%) scale(1) rotate(0deg)' },
-        { opacity: 0, transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.2) rotate(${spin}deg)` },
-      ],
-      { duration: 700 + Math.random() * 400, easing: 'cubic-bezier(.2, .6, .3, 1)' },
-    ).onfinish = () => { spark.remove(); live--; };
+    px = e.clientX;
+    py = e.clientY;
+    spark.style.transform = `translate3d(${px}px, ${py}px, 0)`;
+    const t = e.target.closest ? e.target : null;
+    // The Beyond canvas shows the grab hand instead.
+    const inCanvas = !!(t && t.closest('.beyond__stage'));
+    spark.classList.toggle('is-shown', !inCanvas);
+    spark.classList.toggle('is-hovering', !!(t && t.closest(clickable)));
+    if (!queued) { queued = true; setTimeout(() => requestAnimationFrame(check), 60); }
   }, { passive: true });
+  document.addEventListener('pointerout', (e) => { if (!e.relatedTarget) spark.classList.remove('is-shown'); });
+})();
+
+// Star field: [data-star-trail] sections carry a faint grid of tiny stars in
+// their background. Moving the cursor across the section makes the stars
+// around its path bloom into bigger, grainy blues that then shrink back.
+(function () {
+  const sections = document.querySelectorAll('[data-star-trail]');
+  if (!sections.length || reduceMotion || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+  // electric, cobalt, royal, sky, cyan, icy
+  const blues = ['#2b45ff', '#1f3fb8', '#3b5fd9', '#5fb4f2', '#3fc4e8', '#a9d6fb'];
+  const SPRITE = 64;
+  const GAP = 30;          // grid spacing
+  const REST = 2;          // star size at rest
+  const HALF = 0.7;        // seconds for a bloom to halve: the trail tapers fast,
+                           // then its smallest stars linger (~4.5s to clear)
+  const SPRING = 120;      // pull of each star toward its bloom size
+  const DAMP = 8;          // low damping = a little bounce as it grows
+
+  // Each star is drawn once to a small canvas: a four-point silhouette with
+  // pinched, curved sides, roughened with per-pixel grain.
+  const makeSprite = (color) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = SPRITE;
+    const ctx = canvas.getContext('2d');
+    const c = SPRITE / 2;
+    const r = SPRITE / 2 - 1;
+    const k = r * 0.13;
+    ctx.beginPath();
+    ctx.moveTo(c, c - r);
+    ctx.quadraticCurveTo(c + k, c - k, c + r, c);
+    ctx.quadraticCurveTo(c + k, c + k, c, c + r);
+    ctx.quadraticCurveTo(c - k, c + k, c - r, c);
+    ctx.quadraticCurveTo(c - k, c - k, c, c - r);
+    ctx.fillStyle = color;
+    ctx.fill();
+    const img = ctx.getImageData(0, 0, SPRITE, SPRITE);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      const n = (Math.random() - 0.5) * 46 + (Math.random() < 0.04 ? 40 : 0);
+      d[i] = Math.max(0, Math.min(255, d[i] + n));
+      d[i + 1] = Math.max(0, Math.min(255, d[i + 1] + n));
+      d[i + 2] = Math.max(0, Math.min(255, d[i + 2] + n));
+    }
+    ctx.putImageData(img, 0, 0);
+    return canvas;
+  };
+  const sprites = blues.map(makeSprite);
+
+  sections.forEach((section) => {
+    const layer = document.createElement('div');
+    layer.className = 'star-trail';
+    layer.setAttribute('aria-hidden', 'true');
+    const canvas = document.createElement('canvas');
+    layer.append(canvas);
+    section.prepend(layer);
+    const ctx = canvas.getContext('2d');
+
+    // One entry per grid point across the whole section.
+    let cols = 0;
+    let rows = 0;
+    let energy;   // 0 = at rest, 1 = full bloom
+    let peak;     // how big this star gets when fully bloomed
+    let hue;      // which blue
+    let tilt;     // slight rotation
+    let jx;       // small offsets so the grid doesn't look ruled
+    let jy;
+    let val;      // springy size that chases energy
+    let vel;
+    let woke;     // energy at the moment it last woke (for drift progress)
+    let dirX;     // direction it drifts away from the cursor as it fades
+    let dirY;
+    let reach;    // how far it drifts
+    let spin;
+
+    const build = () => {
+      const w = layer.offsetWidth;
+      const h = layer.offsetHeight;
+      cols = Math.ceil(w / GAP) + 1;
+      rows = Math.ceil(h / GAP) + 1;
+      const n = cols * rows;
+      energy = new Float32Array(n);
+      peak = new Float32Array(n);
+      hue = new Uint8Array(n);
+      tilt = new Float32Array(n);
+      jx = new Float32Array(n);
+      jy = new Float32Array(n);
+      val = new Float32Array(n);
+      vel = new Float32Array(n);
+      woke = new Float32Array(n);
+      dirX = new Float32Array(n);
+      dirY = new Float32Array(n);
+      reach = new Float32Array(n);
+      spin = new Float32Array(n);
+      for (let i = 0; i < n; i++) {
+        peak[i] = 7 + Math.random() * 15;
+        hue[i] = Math.floor(Math.random() * sprites.length);
+        tilt[i] = (Math.random() - 0.5) * 0.5;
+        jx[i] = (Math.random() - 0.5) * 6;
+        jy[i] = (Math.random() - 0.5) * 6;
+      }
+    };
+
+    const size = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(canvas.offsetWidth * dpr);
+      canvas.height = Math.round(canvas.offsetHeight * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    let running = false;
+    let lastFrame = 0;
+
+    const draw = (now) => {
+      const dt = lastFrame ? Math.min(0.05, (now - lastFrame) / 1000) : 0;
+      lastFrame = now;
+
+      // The canvas is viewport-sized and sticky; find which part of the
+      // section it is currently showing.
+      const offset = canvas.getBoundingClientRect().top - layer.getBoundingClientRect().top;
+      const cw = canvas.offsetWidth;
+      const ch = canvas.offsetHeight;
+      ctx.clearRect(0, 0, cw, ch);
+
+      const r0 = Math.max(0, Math.floor(offset / GAP) - 1);
+      const r1 = Math.min(rows - 1, Math.ceil((offset + ch) / GAP) + 1);
+      let active = false;
+      for (let r = r0; r <= r1; r++) {
+        for (let c = 0; c < cols; c++) {
+          const i = r * cols + c;
+          const x0 = c * GAP + jx[i];
+          const y0 = r * GAP + jy[i] - offset;
+          let e = energy[i];
+          if (e > 0) {
+            e *= Math.pow(0.5, dt / HALF);
+            if (e < 0.012) e = 0;
+            energy[i] = e;
+          }
+          const target = e ** 1.4;   // mid energies read clearly smaller
+
+          // Spring the visible size toward the energy, in small steps so
+          // the bounce stays stable at any frame rate.
+          let v = val[i];
+          let w = vel[i];
+          if (e > 0 || v > 0.002 || w > 0.002 || w < -0.002) {
+            for (let t = dt; t > 0; t -= 1 / 120) {
+              const h = Math.min(t, 1 / 120);
+              w += (SPRING * (target - v) - DAMP * w) * h;
+              v += w * h;
+            }
+            if (e === 0 && Math.abs(v) < 0.002 && Math.abs(w) < 0.002) { v = 0; w = 0; }
+            val[i] = v;
+            vel[i] = w;
+            if (v || w || e) active = true;
+          }
+
+          const bloom = Math.max(0, v);
+          const shown = Math.min(1, bloom * 1.5);
+
+          // The resting dot gives way while its star is out.
+          if (shown < 1) {
+            ctx.globalAlpha = 0.22 * (1 - shown);
+            ctx.drawImage(sprites[hue[i]], x0 - REST / 2, y0 - REST / 2, REST, REST);
+          }
+          if (bloom > 0.01) {
+            // As it fades, the star drifts outward and turns, then is gone.
+            const p = woke[i] ? Math.min(1, Math.max(0, (woke[i] - e) / woke[i])) : 1;
+            const go = p * p;
+            const sz = REST + (peak[i] - REST) * bloom;
+            ctx.globalAlpha = shown;
+            ctx.save();
+            ctx.translate(x0 + dirX[i] * reach[i] * go, y0 + dirY[i] * reach[i] * go);
+            ctx.rotate(tilt[i] * bloom + spin[i] * go);
+            ctx.drawImage(sprites[hue[i]], -sz / 2, -sz / 2, sz, sz);
+            ctx.restore();
+          }
+        }
+      }
+      ctx.globalAlpha = 1;
+      if (active) requestAnimationFrame(draw);
+      else { running = false; lastFrame = 0; }
+    };
+    const kick = () => {
+      if (running) return;
+      running = true;
+      requestAnimationFrame(draw);
+    };
+
+    // Wake the stars around a point; closer ones bloom more.
+    const wake = (x, y, radius) => {
+      const c0 = Math.max(0, Math.floor((x - radius) / GAP));
+      const c1 = Math.min(cols - 1, Math.ceil((x + radius) / GAP));
+      const r0 = Math.max(0, Math.floor((y - radius) / GAP));
+      const r1 = Math.min(rows - 1, Math.ceil((y + radius) / GAP));
+      for (let r = r0; r <= r1; r++) {
+        for (let c = c0; c <= c1; c++) {
+          const d = Math.hypot(c * GAP - x, r * GAP - y);
+          if (d >= radius) continue;
+          const i = r * cols + c;
+          const f = 1 - d / radius;
+          const e = f * f * (0.8 + Math.random() * 0.2);   // big at the cursor, small at the edges
+          if (e > energy[i]) {
+            // A star waking from rest picks a fresh blue and size.
+            if (val[i] < 0.05) {
+              hue[i] = Math.floor(Math.random() * sprites.length);
+              peak[i] = 7 + Math.random() * 15;
+            }
+            energy[i] = e;
+            woke[i] = e;
+            // It will scatter away from the cursor as it fades.
+            const ox = c * GAP - x + (Math.random() - 0.5) * 8;
+            const oy = r * GAP - y + (Math.random() - 0.5) * 8;
+            const len = Math.hypot(ox, oy) || 1;
+            dirX[i] = ox / len;
+            dirY[i] = oy / len;
+            reach[i] = 10 + Math.random() * 18;
+            spin[i] = (Math.random() - 0.5) * 1.6;
+          }
+        }
+      }
+    };
+
+    let last = null;
+    let lastT = 0;
+    section.addEventListener('pointerleave', () => { last = null; });
+    section.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
+      const rect = layer.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const now = e.timeStamp;
+      if (!last) { last = { x, y }; lastT = now; return; }
+      const dx = x - last.x;
+      const dy = y - last.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 2) return;   // a resting cursor wakes nothing new
+      const speed = dist / Math.max(8, now - lastT);
+      const radius = 55 + Math.min(55, speed * 30);   // faster = wider wake
+      // Follow the actual path, a step at a time.
+      const steps = Math.ceil(dist / (GAP / 2));
+      for (let s = 1; s <= steps; s++) wake(last.x + (dx * s) / steps, last.y + (dy * s) / steps, radius);
+      last = { x, y };
+      lastT = now;
+      kick();
+    }, { passive: true });
+
+    const refresh = () => { if (!running) { running = true; requestAnimationFrame(draw); } };
+    window.addEventListener('scroll', refresh, { passive: true });
+    window.addEventListener('resize', () => { build(); size(); refresh(); });
+    build();
+    size();
+    refresh();
+  });
 })();
