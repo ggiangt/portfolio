@@ -196,14 +196,15 @@ a { color: inherit; text-decoration: none; }
 
 .work { display: block; }
 .work__media { aspect-ratio: var(--ratio, 3 / 2); overflow: hidden; background: var(--mist); }
-.work__media img {
+.work__media :is(img, video) {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform .8s cubic-bezier(.2, .6, .2, 1);
 }
-a.work:hover .work__media img,
-a.work:focus-visible .work__media img { transform: scale(1.03); }
+a.work:hover .work__media :is(img, video),
+a.work:focus-visible .work__media :is(img, video) { transform: scale(1.03); }
 
 .work__title {
   display: flex;
