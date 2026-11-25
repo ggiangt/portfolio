@@ -285,29 +285,21 @@ a.work:focus-visible .work__title svg { transform: rotate(0deg) scale(.9); }
 }
 
 /* ---------- Beyond designing ---------- */
-.beyond { background: #fff; }
-.beyond__head {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  gap: 20px;
-  min-height: 285px;
-  padding: 48px 24px;
-  background: url("assets/home/pattern.png") center / cover no-repeat;
-  text-align: center;
-}
-.beyond__head h2 {
-  font-family: var(--font-serif);
-  font-weight: 500;
-  font-size: 50px;
-  line-height: .9;
-  letter-spacing: -.004em;
-}
-.beyond__head p { max-width: 600px; font-weight: 200; font-size: 20px; line-height: 1.15; letter-spacing: -.01em; }
+.beyond { position: relative; background: #fff; }
 
+/* Star field (site.js): a faint grid of tiny stars behind the canvas that
+   blooms around the cursor. Its canvas is viewport-sized and sticks while the
+   section scrolls past. */
+[data-star-trail] { position: relative; isolation: isolate; }
+.star-trail { position: absolute; inset: 0; z-index: 0; overflow: clip; pointer-events: none; }
+.star-trail canvas { position: sticky; top: 0; display: block; width: 100%; height: 100vh; }
+
+/* The stage: an endless canvas of work you can drag in any direction, with
+   the heading floating in the middle. Its top and bottom edges fade out so
+   the canvas melts into the sections around it. */
 .beyond__stage {
   position: relative;
-  height: 1178px;
+  height: clamp(680px, 92vh, 920px);
   overflow: hidden;
   touch-action: pan-y;
   user-select: none;
@@ -315,53 +307,163 @@ a.work:focus-visible .work__title svg { transform: rotate(0deg) scale(.9); }
   cursor: grab;
 }
 .beyond__stage.is-dragging { cursor: grabbing; }
+.beyond__stage::before,
 .beyond__stage::after {
   content: "";
   position: absolute;
-  inset: auto 0 0;
-  height: 240px;
-  background: linear-gradient(rgba(255, 255, 255, 0), #fff);
+  left: 0;
+  right: 0;
+  z-index: 2;
+  height: 170px;
   pointer-events: none;
 }
+.beyond__stage::before { top: 0; background: linear-gradient(var(--cream), rgba(255, 253, 248, 0)); }
+.beyond__stage::after { bottom: 0; background: linear-gradient(rgba(255, 255, 255, 0), #fff); }
 
+/* site.js sizes the canvas to cover the tilted stage and places each piece. */
 .beyond__canvas {
-  --col: 575px;
-  --gap: 62px;
   position: absolute;
-  top: -400px;
+  top: 50%;
   left: 50%;
-  display: flex;
-  align-items: flex-start;
-  gap: var(--gap);
-  width: calc(3 * var(--col) + 2 * var(--gap));
-  margin-left: calc(-1.5 * var(--col) - var(--gap));
-  transform: translate3d(var(--x, 0px), var(--y, 0px), 0) rotate(-5deg);
+  width: var(--cw, 100%);
+  height: var(--ch, 100%);
+  transform: translate(-50%, -50%) rotate(-4deg);
+}
+.beyond__item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--w, 300px);
+  margin: 0;
+  aspect-ratio: var(--ratio, 4 / 3);
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--mist);
+  box-shadow: 0 18px 40px -22px rgba(2, 33, 97, .45);
   will-change: transform;
 }
-.beyond__col { flex: none; display: grid; gap: 44px; width: var(--col); }
-.beyond__col:nth-child(2) { margin-top: 20px; }
-.beyond__col:nth-child(3) { margin-top: 44px; }
-
-.beyond__canvas img,
-.beyond__canvas video {
+.beyond__item:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+.beyond__item img,
+.beyond__item video {
+  display: block;
   width: 100%;
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 18px 40px -22px rgba(2, 33, 97, .45);
+  height: 100%;
+  object-fit: cover;
   pointer-events: none;
 }
-.beyond__canvas video { object-fit: cover; background: var(--mist); }
-.beyond__canvas .is-narrow { width: 66%; }
-.beyond__canvas figcaption {
-  margin-top: 18px;
-  padding-inline: 8%;
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 1.4;
-  letter-spacing: -.02em;
+/* Captions live inside the picture and rise in on hover. */
+.beyond__item figcaption {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 48px 18px 16px;
+  background: linear-gradient(rgba(2, 20, 60, 0), rgba(2, 20, 60, .78));
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: -.01em;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .25s, transform .25s cubic-bezier(.2, .6, .2, 1);
+}
+@media (hover: hover) {
+  .beyond__stage:not(.is-dragging) .beyond__item:hover figcaption { opacity: 1; transform: none; }
+}
+
+/* The heading sits in the canvas as one of its pieces (placed by site.js). */
+.beyond__head {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 28px;
+  width: var(--w, 480px);
+  padding: 48px 0;
   text-align: center;
-  color: var(--slate);
+  pointer-events: none;
+  will-change: transform;
+}
+.beyond__head h2 {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 46px;
+  line-height: 1;
+  letter-spacing: -.02em;
+  color: var(--navy);
+}
+@media (min-width: 900px) { .beyond__head h2 { white-space: nowrap; } }
+.beyond__head p { max-width: 300px; font-weight: 300; font-size: 16px; line-height: 1.2; letter-spacing: -.01em; color: var(--navy); }
+
+/* Lightbox: a clicked piece opens large over the page. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 6vh 5vw;
+  background: rgba(6, 14, 40, .72);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s, visibility .3s;
+}
+.lightbox.is-open { opacity: 1; visibility: visible; }
+.lightbox__figure {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  max-width: min(1100px, 100%);
+  margin: 0;
+  transform: scale(.94);
+  transition: transform .35s cubic-bezier(.2, .7, .2, 1);
+}
+.lightbox.is-open .lightbox__figure { transform: none; }
+.lightbox__figure img,
+.lightbox__figure video {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 78vh;
+  border-radius: 10px;
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, .6);
+}
+.lightbox__caption {
+  max-width: 60ch;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.4;
+  text-align: center;
+  color: #fff;
+}
+.lightbox__close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .14);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+.lightbox__close:hover { background: rgba(255, 255, 255, .26); }
+@media (prefers-reduced-motion: reduce) {
+  .lightbox, .lightbox__figure, .beyond__item figcaption { transition: none; }
 }
 
 .drag-pill {
@@ -384,74 +486,19 @@ a.work:focus-visible .work__title svg { transform: rotate(0deg) scale(.9); }
   pointer-events: none;
   transition: opacity .3s;
 }
-/* With a mouse, a hand replaces the cursor inside the canvas: it sways while
-   idle, closes while dragging, and turns into "See more" over a piece of work. */
-.drag-cursor { display: none; }
-@media (hover: hover) and (pointer: fine) {
-  .beyond__stage.has-cursor,
-  .beyond__stage.has-cursor.is-dragging { cursor: none; }
-
-  .drag-cursor {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 3;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 52px;
-    padding: 0 13px;
-    border-radius: 999px;
-    background: rgba(64, 64, 64, .78);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-    color: #fff;
-    font-family: "Space Mono", var(--font-mono);
-    font-size: 15px;
-    line-height: 1;
-    text-transform: uppercase;
-    white-space: nowrap;
-    pointer-events: none;
-    opacity: 0;
-    transform: translate3d(var(--px, 0px), var(--py, 0px), 0) translate(-50%, -50%) scale(.6);
-    transition: opacity .2s, transform .2s cubic-bezier(.2, .6, .2, 1), padding .25s;
-  }
-  .has-cursor .drag-cursor { opacity: 1; transform: translate3d(var(--px, 0px), var(--py, 0px), 0) translate(-50%, -50%); }
-  /* Follow the pointer without lag; only the size change eases. */
-  .has-cursor .drag-cursor { transition: opacity .2s, padding .25s; }
-
-  .drag-cursor__hand { flex: none; display: block; }
-  .drag-cursor__hand--open { animation: hand-sway 1.6s ease-in-out infinite; transform-origin: 50% 90%; }
-  .drag-cursor__hand--grab,
-  .is-dragging .drag-cursor__hand--open { display: none; }
-  .is-dragging .drag-cursor__hand--grab { display: block; }
-
-  .drag-cursor__label { display: none; }
-  .is-over-work:not(.is-dragging) .drag-cursor { padding: 0 20px 0 15px; }
-  .is-over-work:not(.is-dragging) .drag-cursor__label { display: block; }
-
-  .has-cursor .drag-pill { opacity: 0; }
-}
-@keyframes hand-sway {
-  0%, 100% { transform: translateX(-2px) rotate(-8deg); }
-  50% { transform: translateX(2px) rotate(8deg); }
-}
-
 /* ---------- Scroll reveals ---------- */
-.js-motion :is(.work, .beyond__head > *) {
+.js-motion .work {
   transition:
     opacity .8s cubic-bezier(.2, .6, .2, 1) var(--reveal-delay, 0ms),
     transform .8s cubic-bezier(.2, .6, .2, 1) var(--reveal-delay, 0ms);
 }
-.js-motion :is(.work, .beyond__head > *):not(.is-visible) { opacity: 0; transform: translateY(24px); }
+.js-motion .work:not(.is-visible) { opacity: 0; transform: translateY(24px); }
 
 /* ==========================================================================
    Tablet
    ========================================================================== */
 @media (max-width: 1100px) {
   .hero { min-height: 0; padding-top: clamp(300px, 34vw, 412px); }
-  .beyond__canvas { --col: 440px; --gap: 44px; top: -300px; }
-  .beyond__stage { height: 940px; }
 }
 
 /* ==========================================================================
@@ -473,20 +520,16 @@ a.work:focus-visible .work__title svg { transform: rotate(0deg) scale(.9); }
   .work__title { margin-top: 16px; }
   .work__desc { margin-top: 10px; }
 
-  .beyond__head { min-height: 240px; gap: 16px; }
-  .beyond__head h2 { font-size: 38px; }
-  .beyond__head p { font-size: 17px; line-height: 1.25; }
+  .beyond__stage { height: 640px; }
+  .beyond__stage::before, .beyond__stage::after { height: 110px; }
+  .beyond__head { padding: 32px 0; gap: 20px; }
+  .beyond__head h2 { font-size: 34px; }
+  .beyond__head p { font-size: 14px; }
 
-  .beyond__stage { height: 700px; }
-  .beyond__stage::after { height: 140px; }
-  .beyond__canvas { --col: 270px; --gap: 24px; top: -150px; }
-  .beyond__col { gap: 26px; }
-  .beyond__canvas figcaption { margin-top: 12px; font-size: 13px; }
   .drag-pill { top: 16px; padding: 5px 14px; font-size: 14px; line-height: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .drag-cursor__hand--open { animation: none; }
-  .work__media img, .work__title svg { transition: none; }
+  .work__media :is(img, video), .work__title svg { transition: none; }
 }

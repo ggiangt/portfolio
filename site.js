@@ -282,7 +282,7 @@ const backdropLuminance = (() => {
   // Mirrors the selector lists in styles.css (home) and case.css (case studies).
   const groups = '.duo, .cards, .flaws, .pairs, .iterations, .trio, .outcomes, .learned, .grid, .stats, .tiles, .bento';
   const selector = isHome
-    ? '.work, .beyond__head > *'
+    ? '.work'
     : [
         '.masthead > *',
         '.hero__frame',
@@ -379,39 +379,246 @@ const backdropLuminance = (() => {
   });
 })();
 
-// "Beyond designing" canvas: drag the tilted wall of work around.
+// "Beyond designing" canvas: an endless, tilted wall of work. The pieces are
+// repeated to fill the space in loose columns of mixed sizes, and wrap around
+// as you drag, so the wall never runs out. Clicking a piece opens it large.
 (function () {
   const stage = document.querySelector('[data-drag-stage]');
   const canvas = stage && stage.querySelector('[data-drag-canvas]');
   if (!canvas) return;
 
+  const TILT = -4 * Math.PI / 180;
+  // Keep clean copies of the pieces; the wall is rebuilt from these.
+  const templates = [...canvas.querySelectorAll('.beyond__item')].map((el) => el.cloneNode(true));
+  const headEl = stage.querySelector('.beyond__head');
+  const headTpl = headEl.cloneNode(true);
+  headEl.remove();
+  const find = (part) => templates.find((t) => t.innerHTML.includes(part));
+  const featured = { mural: find('b-mural'), billboard: find('b-billboard'), speaking: find('b-speaking') };
+  const ratioOf = (el) => {
+    const [w, h] = el.style.getPropertyValue('--ratio').split('/').map(parseFloat);
+    return w && h ? w / h : 4 / 3;
+  };
+  // A fixed sequence of "random" numbers, so the layout stays the same on resize.
+  const rand = (i) => { const v = Math.sin(i * 12.9898 + 4.1) * 43758.5453; return v - Math.floor(v); };
+  // Small size differences only, so the wall feels even.
+  const SIZES = [1, 0.95, 0.98, 0.92, 0.97, 0.94];
+
+  let items = [];          // { el, bx, by, r }: a placed piece and its slight tilt
+  let PW = 0, PH = 0;      // size of one repeat of the wall
+  let shiftX = 0, shiftY = 0;
   let x = 0, y = 0;
+
+  // Videos play only while on screen.
+  const videoWatch = 'IntersectionObserver' in window && !reduceMotion
+    ? new IntersectionObserver((entries) => entries.forEach(({ target, isIntersecting }) => {
+      if (isIntersecting) target.play().catch(() => {}); else target.pause();
+    }), { threshold: 0.2 })
+    : null;
+
+  const build = () => {
+    if (videoWatch) videoWatch.disconnect();
+    canvas.replaceChildren();
+    items = [];
+
+    const W = stage.clientWidth;
+    const H = stage.clientHeight;
+    const cos = Math.cos(TILT), sin = Math.abs(Math.sin(TILT));
+    const coverW = Math.ceil(W * cos + H * sin);
+    const coverH = Math.ceil(W * sin + H * cos);
+    canvas.style.setProperty('--cw', `${coverW}px`);
+    canvas.style.setProperty('--ch', `${coverH}px`);
+
+    const colW = W >= 1100 ? 420 : W >= 700 ? 340 : 230;
+    const gap = Math.round(colW * 0.14);
+
+    // The heading is a piece of the wall too: measure it at column width.
+    const headW = Math.round(colW * (W >= 900 ? 1.15 : 1));
+    const probe = headTpl.cloneNode(true);
+    probe.style.setProperty('--w', `${headW}px`);
+    probe.style.visibility = 'hidden';
+    canvas.append(probe);
+    const headH = Math.ceil(probe.offsetHeight);
+    probe.remove();
+
+    const tallest = Math.max(headH, colW / Math.min(...templates.map(ratioOf)));
+    // Enough columns and height that a piece leaving one edge has already
+    // re-entered on the other side before it could be seen missing.
+    const cols = Math.max(3, Math.ceil((coverW + colW + gap) / (colW + gap)));
+    PW = cols * (colW + gap);
+    const wantH = coverH + tallest + gap;
+    shiftX = colW + gap;
+    shiftY = tallest + gap;
+
+    // The column that opens in the middle of the view holds the heading, with
+    // the speaking photo under it, the mural to its left and the billboard to
+    // its right, so those are the first things people see.
+    const cc = Math.min(cols - 2, Math.max(1, Math.round((coverW / 2 + shiftX - colW / 2) / (colW + gap))));
+    const lead = { [cc - 1]: featured.mural, [cc]: 'head', [cc + 1]: featured.billboard };
+    const after = { [cc]: featured.speaking };
+
+    let n = 0;
+    const seen = new Set();
+    const columns = [];
+    // Every piece gets roughly the same area, so wide shots and tall ones read
+    // as the same size (a tall piece is narrower, a wide one shorter). The
+    // three featured pieces get more room than the rest.
+    const area = colW * colW * 0.62;
+    const sizeOf = (t, size, big) => {
+      const a = big ? area * 1.7 : area;
+      const w = Math.round(Math.min(big ? colW * 1.12 : colW, Math.sqrt(a * ratioOf(t))) * size);
+      return { w, h: w / ratioOf(t) };
+    };
+    // The first appearance of each piece is the real one (focusable, read
+    // out); repeats are decorative copies.
+    const pieceOf = (t, size, big) => {
+      const copy = seen.has(t);
+      seen.add(t);
+      return { t, ...sizeOf(t, size, big), copy };
+    };
+    const isFeatured = (t) => Object.values(featured).includes(t);
+    // Is this piece already showing near (y0..y1) in a neighbouring column?
+    const nearby = (c, t, y0, y1) => {
+      const others = [columns[c - 1]];
+      if (c === cols - 1) others.push(columns[0]);   // the wall wraps sideways
+      return others.some((col) => col && col.col.some((p) => p.t === t && p.y < y1 + 160 && p.y + p.h > y0 - 160));
+    };
+
+    for (let c = 0; c < cols; c++) {
+      const col = [];
+      // Line the mural and billboard up with the middle of the heading.
+      const start = lead[c] === 'head' ? 0 : rand(c + 1) * gap * 2;
+      let h = 0;
+      const push = (p) => { p.y = start + h; col.push(p); h += p.h + gap; };
+      if (lead[c] === 'head') push({ head: true, w: headW, h: headH });
+      else if (lead[c]) push(pieceOf(lead[c], 1, true));
+      if (after[c]) push(pieceOf(after[c], 1, true));
+      if (lead[c] && lead[c] !== 'head') {
+        const shift = headH / 2 - col[0].h / 2 - start;
+        col.forEach((p) => { p.y += shift; });
+      }
+
+      let k = (c * 4) % templates.length;   // stagger so neighbours differ
+      while (h < wantH) {
+        const prev = col.length ? col[col.length - 1].t : null;
+        // Take the next piece in the cycle that isn't the one just above it,
+        // isn't right beside its twin, and isn't one of the featured three.
+        let pick = null;
+        for (let tries = 0; tries < templates.length; tries++) {
+          const t = templates[(k + tries) % templates.length];
+          if (t === prev) continue;
+          if (isFeatured(t)) continue;   // the featured three appear once, by the heading
+          const { h: th } = sizeOf(t, SIZES[(n + c) % SIZES.length]);
+          if (nearby(c, t, start + h, start + h + th)) continue;
+          pick = t;
+          k += tries + 1;
+          break;
+        }
+        if (!pick) { pick = templates[k % templates.length]; k++; }
+        push(pieceOf(pick, SIZES[(n + c) % SIZES.length]));
+        n++;
+      }
+      // The bottom of a column meets its own top as the wall wraps; don't let
+      // the same piece end up touching itself there.
+      const first = col[0].t;
+      if (col.length > 2 && first && col[col.length - 1].t === first) {
+        const swap = templates.find((t) => t !== first && t !== col[col.length - 2].t && !isFeatured(t));
+        const last = col.pop();
+        h -= last.h + gap;
+        push(pieceOf(swap, SIZES[(n + c) % SIZES.length]));
+      }
+      columns.push({ col, h, start });
+    }
+    PH = Math.max(...columns.map((c) => c.h));
+
+    let headX = 0, headY = 0;
+    columns.forEach(({ col, h }, c) => {
+      // Spread any spare height evenly so every column repeats seamlessly.
+      const extra = (PH - h) / col.length;
+      let by = col[0].y;
+      col.forEach((piece, j) => {
+        let el;
+        let r;
+        let bx;
+        if (piece.head) {
+          el = headTpl.cloneNode(true);
+          el.style.setProperty('--w', `${piece.w}px`);
+          r = (-TILT * 180 / Math.PI).toFixed(2);   // keep the words level
+          bx = c * (colW + gap) + (colW - piece.w) / 2;
+          headX = bx;
+          headY = by;
+        } else {
+          el = piece.t.cloneNode(true);
+          el.style.setProperty('--w', `${piece.w}px`);
+          r = ((rand(c * 31 + j) - 0.5) * 3).toFixed(2);
+          bx = c * (colW + gap) + ((lead[c] && j === 0) || (after[c] && j === 1) ? (colW - piece.w) / 2 : (colW - piece.w) * rand(c * 17 + j * 5 + 2));
+          if (piece.copy) {
+            el.setAttribute('aria-hidden', 'true');
+            el.tabIndex = -1;
+          } else {
+            el.tabIndex = 0;
+            el.setAttribute('role', 'button');
+            const label = el.querySelector('img')?.alt || el.querySelector('video')?.getAttribute('aria-label') || '';
+            el.setAttribute('aria-label', `Open: ${label}`);
+          }
+          const video = el.querySelector('video');
+          if (video && videoWatch) videoWatch.observe(video);
+        }
+        canvas.append(el);
+        items.push({ el, bx, by, r });
+        by += piece.h + gap + extra;
+      });
+    });
+
+    // Open with the heading in the middle of the view.
+    x = coverW / 2 - headX - headW / 2;
+    y = coverH / 2 - headY - headH / 2;
+    apply();
+  };
+
+  const wrap = (v, size) => ((v % size) + size) % size;
+  const apply = () => {
+    for (const it of items) {
+      const px = wrap(it.bx + x + shiftX, PW) - shiftX;
+      const py = wrap(it.by + y + shiftY, PH) - shiftY;
+      it.el.style.transform = `translate3d(${px.toFixed(1)}px, ${py.toFixed(1)}px, 0) rotate(${it.r}deg)`;
+    }
+  };
+
+  // --- Dragging, with a little glide after letting go ---
   let vx = 0, vy = 0;
   let lastX = 0, lastY = 0, lastT = 0;
+  let startX = 0, startY = 0;
+  let pressed = null;      // the piece under the pointer when it went down
   let dragging = false;
   let touch = false;
   let frame = 0;
 
-  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-  const apply = () => {
-    const slack = 60;
-    const maxX = Math.max(0, (canvas.offsetWidth - stage.clientWidth) / 2) + slack;
-    const top = canvas.offsetTop;
-    const maxY = -top + slack;
-    const minY = Math.min(0, stage.clientHeight - (top + canvas.offsetHeight)) - slack;
-    x = clamp(x, -maxX, maxX);
-    y = clamp(y, minY, maxY);
-    canvas.style.setProperty('--x', `${x}px`);
-    canvas.style.setProperty('--y', `${y}px`);
-  };
-
-  const glide = () => {
-    vx *= 0.94;
-    vy *= 0.94;
-    x += vx * 16;
-    y += vy * 16;
+  // After letting go, the wall carries on in the throw direction and settles
+  // on a spring, overshooting a touch and bouncing back.
+  let tx = 0, ty = 0;
+  let sx = 0, sy = 0;      // spring velocity, px per second
+  let lastFrame = 0;
+  const glide = (now) => {
+    const dt = lastFrame ? Math.min(0.032, (now - lastFrame) / 1000) : 1 / 60;
+    lastFrame = now;
+    const K = 90, D = 13.5;  // stiffness and damping: a gentle, small bounce
+    sx += (K * (tx - x) - D * sx) * dt;
+    sy += (K * (ty - y) - D * sy) * dt;
+    x += sx * dt;
+    y += sy * dt;
     apply();
-    if (Math.abs(vx) + Math.abs(vy) > 0.02) frame = requestAnimationFrame(glide);
+    if (Math.abs(tx - x) + Math.abs(ty - y) > 0.3 || Math.abs(sx) + Math.abs(sy) > 4) frame = requestAnimationFrame(glide);
+    else { x = tx; y = ty; apply(); }
+  };
+  const throwFrom = () => {
+    // Project where the throw would carry the wall, then spring there.
+    tx = x + vx * 260;
+    ty = y + vy * 260;
+    sx = vx * 1000;
+    sy = vy * 1000;
+    lastFrame = 0;
+    frame = requestAnimationFrame(glide);
   };
 
   stage.addEventListener('pointerdown', (e) => {
@@ -419,8 +626,9 @@ const backdropLuminance = (() => {
     cancelAnimationFrame(frame);
     dragging = true;
     touch = e.pointerType !== 'mouse';
-    lastX = e.clientX;
-    lastY = e.clientY;
+    pressed = e.target.closest('.beyond__item');
+    startX = lastX = e.clientX;
+    startY = lastY = e.clientY;
     lastT = performance.now();
     vx = vy = 0;
     stage.classList.add('is-dragging');
@@ -428,20 +636,14 @@ const backdropLuminance = (() => {
   });
 
   stage.addEventListener('pointermove', (e) => {
-    if (e.pointerType === 'mouse') {
-      const rect = stage.getBoundingClientRect();
-      stage.classList.add('has-cursor');
-      stage.style.setProperty('--px', `${e.clientX - rect.left}px`);
-      stage.style.setProperty('--py', `${e.clientY - rect.top}px`);
-      // Over a piece of work (and not mid-drag), the cursor offers "See more".
-      stage.classList.toggle('is-over-work', !dragging && !!e.target.closest('figure'));
-    }
     if (!dragging) return;
     const now = performance.now();
     const dt = Math.max(1, now - lastT);
-    const dx = e.clientX - lastX;
-    // On touch, vertical swipes keep scrolling the page; only sideways drags move the wall.
-    const dy = touch ? 0 : e.clientY - lastY;
+    // Move in the wall's own (tilted) directions so it follows the pointer.
+    const sx = e.clientX - lastX;
+    const sy = touch ? 0 : e.clientY - lastY;
+    const dx = sx * Math.cos(-TILT) - sy * Math.sin(-TILT);
+    const dy = sx * Math.sin(-TILT) + sy * Math.cos(-TILT);
     x += dx;
     y += dy;
     vx = dx / dt;
@@ -452,16 +654,82 @@ const backdropLuminance = (() => {
     apply();
   });
 
-  const release = () => {
+  const release = (e) => {
     if (!dragging) return;
     dragging = false;
     stage.classList.remove('is-dragging');
-    if (!reduceMotion) frame = requestAnimationFrame(glide);
+    const moved = Math.hypot(e.clientX - startX, e.clientY - startY);
+    if (e.type === 'pointerup' && moved < 6 && pressed) { open(pressed); return; }
+    if (!reduceMotion) throwFrom();
   };
   stage.addEventListener('pointerup', release);
   stage.addEventListener('pointercancel', release);
-  stage.addEventListener('pointerleave', () => stage.classList.remove('has-cursor', 'is-over-work'));
-  window.addEventListener('resize', apply);
+  canvas.addEventListener('keydown', (e) => {
+    const item = e.target.closest('.beyond__item');
+    if (item && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(item); }
+  });
+
+  // --- Lightbox ---
+  const box = document.createElement('div');
+  box.className = 'lightbox';
+  box.setAttribute('role', 'dialog');
+  box.setAttribute('aria-modal', 'true');
+  box.setAttribute('aria-label', 'Enlarged piece');
+  box.innerHTML = '<button class="lightbox__close" type="button" aria-label="Close">×</button><figure class="lightbox__figure"></figure>';
+  document.body.append(box);
+  const holder = box.querySelector('.lightbox__figure');
+  const closeBtn = box.querySelector('.lightbox__close');
+  let returnTo = null;
+
+  const open = (item) => {
+    holder.replaceChildren();
+    const img = item.querySelector('img');
+    const video = item.querySelector('video');
+    let media;
+    if (img) {
+      media = document.createElement('img');
+      media.src = img.currentSrc || img.src;
+      media.alt = img.alt;
+    } else if (video) {
+      media = document.createElement('video');
+      media.src = video.querySelector('source')?.src || video.currentSrc;
+      media.poster = video.poster;
+      media.muted = true;
+      media.loop = true;
+      media.playsInline = true;
+      media.controls = true;
+      media.setAttribute('aria-label', video.getAttribute('aria-label') || '');
+      if (!reduceMotion) media.autoplay = true;
+    }
+    if (media) holder.append(media);
+    const text = item.querySelector('figcaption')?.textContent;
+    if (text) {
+      const cap = document.createElement('figcaption');
+      cap.className = 'lightbox__caption';
+      cap.textContent = text;
+      holder.append(cap);
+    }
+    returnTo = item;
+    box.classList.add('is-open');
+    document.documentElement.style.overflow = 'hidden';
+    closeBtn.focus({ preventScroll: true });
+  };
+  const close = () => {
+    if (!box.classList.contains('is-open')) return;
+    box.classList.remove('is-open');
+    document.documentElement.style.overflow = '';
+    holder.querySelector('video')?.pause();
+    if (returnTo && returnTo.tabIndex === 0) returnTo.focus({ preventScroll: true });
+  };
+  box.addEventListener('click', (e) => { if (!e.target.closest('img, video')) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(build, 150);
+  });
+  build();
 })();
 
 // About page: reshuffle the pile of photos.

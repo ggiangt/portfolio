@@ -134,79 +134,69 @@
     </div>
   </section>
 
-  <section class="beyond" id="beyond">
-    <div class="beyond__head">
-      <h2>Beyond designing...</h2>
-      <p>From illustrating a 17-foot community mural, to creating a billboard for Times Square and painting endless canvases, my pursuit of creative excellence has carried me to extraordinary places</p>
-    </div>
-
+  <section class="beyond" id="beyond" data-star-trail>
     <div class="beyond__stage" data-drag-stage>
+      <!-- An endless, tilted wall of work. site.js repeats these pieces to fill
+           the space, sizes them, and wraps them around as you drag. -->
       <div class="beyond__canvas" data-drag-canvas>
-        <div class="beyond__col">
-          <figure>
-            <img src="assets/home/b-mural.png" width="977" height="1024" alt="Giang sitting in front of her 17-foot mural at the University of Waterloo" loading="lazy" draggable="false">
-            <figcaption>My 17-feet digital art mural on display at the University of Waterloo</figcaption>
-          </figure>
-          <figure>
-            <video data-autoplay muted loop playsinline preload="none" poster="assets/home/posters/b-col1.jpg" aria-label="An isometric illustration of Tokyo with travel photos popping up">
-              <source src="assets/video/b-col1.mp4" type="video/mp4">
-            </video>
-          </figure>
-          <figure>
-            <img src="assets/home/b-isometric.png" width="710" height="1024" alt="Isometric painting of a Japanese street and temple" loading="lazy" draggable="false">
-          </figure>
-        </div>
-
-        <div class="beyond__col">
-          <figure>
-            <video data-autoplay muted loop playsinline preload="none" poster="assets/home/posters/b-symposium.jpg" aria-label="Footage from the Socratica Symposium">
-              <source src="assets/video/b-symposium.mp4" type="video/mp4">
-            </video>
-            <figcaption>Leading design for the world's greatest day of making</figcaption>
-          </figure>
-          <figure>
-            <video data-autoplay muted loop playsinline preload="none" poster="assets/home/posters/b-billboard.jpg" aria-label="A Rootly billboard playing in Times Square">
-              <source src="assets/video/b-billboard.mp4" type="video/mp4">
-            </video>
-            <figcaption>Designing a billboard for the New York Times Square!</figcaption>
-          </figure>
-          <figure>
-            <video data-autoplay muted loop playsinline preload="none" poster="assets/home/posters/b-interview.jpg" aria-label="Giang interviewed as Faculty of Arts Co-op Student of the Year">
-              <source src="assets/video/b-interview.mp4" type="video/mp4">
-            </video>
-          </figure>
-          <figure>
-            <img src="assets/home/b-dragon.png" width="1024" height="600" alt="Swirling dragon painting in blues and golds" loading="lazy" draggable="false">
-          </figure>
-        </div>
-
-        <div class="beyond__col">
-          <figure>
-            <img src="assets/home/b-happyhour.jpeg" width="1024" height="576" alt="Event graphics for Rootly's KubeCon happy hour" loading="lazy" draggable="false">
-          </figure>
-          <figure class="is-narrow">
-            <video data-autoplay muted loop playsinline preload="none" poster="assets/home/posters/b-col3.jpg" aria-label="Animated Rootly event invitations">
-              <source src="assets/video/b-col3.mp4" type="video/mp4">
-            </video>
-          </figure>
-          <figure>
-            <img src="assets/home/b-speaking.png" width="1024" height="559" alt="A stage with a giant collage of Giang's paintings projected behind it" loading="lazy" draggable="false">
-            <figcaption>Speaking in front of 3000+ people about my artistic journey</figcaption>
-          </figure>
-          <figure>
-            <video data-autoplay muted loop playsinline preload="none" poster="assets/home/posters/b-handtracking.jpg" aria-label="A particle model reacting to hand movement">
-              <source src="assets/video/b-handtracking.mp4" type="video/mp4">
-            </video>
-            <figcaption>A hand-tracking 3D model, changing with distance and pressure</figcaption>
-          </figure>
-        </div>
+        <figure class="beyond__item" style="--ratio: 977 / 1024">
+          <img src="assets/home/b-mural.png" width="977" height="1024" alt="Giang sitting in front of her 17-foot mural at the University of Waterloo" loading="lazy" draggable="false">
+          <figcaption>My 17-feet digital art mural on display at the University of Waterloo</figcaption>
+        </figure>
+        <figure class="beyond__item" style="--ratio: 800 / 456">
+          <video muted loop playsinline preload="none" poster="assets/home/posters/b-symposium.jpg" aria-label="Footage from the Socratica Symposium">
+            <source src="assets/video/b-symposium.mp4" type="video/mp4">
+          </video>
+          <figcaption>Leading design for the world's greatest day of making</figcaption>
+        </figure>
+        <figure class="beyond__item" style="--ratio: 1024 / 576">
+          <img src="assets/home/b-happyhour.jpeg" width="1024" height="576" alt="Event graphics for Rootly's KubeCon happy hour" loading="lazy" draggable="false">
+        </figure>
+        <figure class="beyond__item" style="--ratio: 800 / 444">
+          <video muted loop playsinline preload="none" poster="assets/home/posters/b-col1.jpg" aria-label="An isometric illustration of Tokyo with travel photos popping up">
+            <source src="assets/video/b-col1.mp4" type="video/mp4">
+          </video>
+        </figure>
+        <figure class="beyond__item" style="--ratio: 720 / 776">
+          <video muted loop playsinline preload="none" poster="assets/home/posters/b-billboard.jpg" aria-label="A Rootly billboard playing in Times Square">
+            <source src="assets/video/b-billboard.mp4" type="video/mp4">
+          </video>
+          <figcaption>Designing a billboard for the New York Times Square!</figcaption>
+        </figure>
+        <figure class="beyond__item" style="--ratio: 1024 / 559">
+          <img src="assets/home/b-speaking.png" width="1024" height="559" alt="A stage with a giant collage of Giang's paintings projected behind it" loading="lazy" draggable="false">
+          <figcaption>Speaking in front of 3000+ people about my artistic journey</figcaption>
+        </figure>
+        <figure class="beyond__item" style="--ratio: 710 / 1024">
+          <img src="assets/home/b-isometric.png" width="710" height="1024" alt="Isometric painting of a Japanese street and temple" loading="lazy" draggable="false">
+        </figure>
+        <figure class="beyond__item" style="--ratio: 640 / 352">
+          <video muted loop playsinline preload="none" poster="assets/home/posters/b-interview.jpg" aria-label="Giang interviewed as Faculty of Arts Co-op Student of the Year">
+            <source src="assets/video/b-interview.mp4" type="video/mp4">
+          </video>
+        </figure>
+        <figure class="beyond__item" style="--ratio: 800 / 611">
+          <video muted loop playsinline preload="none" poster="assets/home/posters/b-col3.jpg" aria-label="Animated Rootly event invitations">
+            <source src="assets/video/b-col3.mp4" type="video/mp4">
+          </video>
+        </figure>
+        <figure class="beyond__item" style="--ratio: 1024 / 600">
+          <img src="assets/home/b-dragon.png" width="1024" height="600" alt="Swirling dragon painting in blues and golds" loading="lazy" draggable="false">
+        </figure>
+        <figure class="beyond__item" style="--ratio: 640 / 360">
+          <video muted loop playsinline preload="none" poster="assets/home/posters/b-handtracking.jpg" aria-label="A particle model reacting to hand movement">
+            <source src="assets/video/b-handtracking.mp4" type="video/mp4">
+          </video>
+          <figcaption>A hand-tracking 3D model, changing with distance and pressure</figcaption>
+        </figure>
       </div>
+
+      <div class="beyond__head">
+        <h2>Beyond designing!</h2>
+        <p>From illustrating a 17-foot community mural, to creating a billboard for Times Square and painting endless canvases, my pursuit of creative excellence has carried me to extraordinary places</p>
+      </div>
+
       <span class="drag-pill" aria-hidden="true">DRAG TO MOVE</span>
-      <span class="drag-cursor" aria-hidden="true">
-        <svg class="drag-cursor__hand drag-cursor__hand--open" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-6-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
-        <svg class="drag-cursor__hand drag-cursor__hand--grab" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11.5V9a2 2 0 0 0-4 0v1.4"/><path d="M14 10V8a2 2 0 0 0-4 0v2"/><path d="M10 9.9V9a2 2 0 0 0-4 0v5"/><path d="M6 14a2 2 0 0 0-4 0"/><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-4a8 8 0 0 1-8-8 2 2 0 1 1 4 0"/></svg>
-        <span class="drag-cursor__label">See more</span>
-      </span>
     </div>
   </section>
 </main>
