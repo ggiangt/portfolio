@@ -732,20 +732,27 @@ const backdropLuminance = (() => {
   build();
 })();
 
-// About page: reshuffle the pile of photos.
+// About page: "Things that I really care about". Clicking a topic opens its
+// story and brings its photos to the front of the pile, stacked large; the
+// rest stay scattered behind, barely there. Clicking the stack deals the front
+// photo to the back. Clicking the open topic again, or anywhere outside the
+// photos, closes it and re-scatters the whole pile.
 (function () {
   const pile = document.querySelector('[data-pile]');
-  const button = pile && pile.querySelector('.pile__shuffle');
-  if (!button) return;
+  const list = document.querySelector('[data-cares]');
+  if (!pile) return;
 
   const photos = [...pile.querySelectorAll('img')];
-  button.addEventListener('click', () => {
+  const TILTS = [0, -4, 6, -6, 4];
+  let current = null;
+
+  const scatter = () => {
     const order = photos.map((_, i) => i + 1).sort(() => Math.random() - 0.5);
     photos.forEach((photo, i) => {
       photo.style.setProperty('--x', Math.round(Math.random() * 64));
       photo.style.setProperty('--y', Math.round(Math.random() * 60));
       photo.style.setProperty('--r', Math.round(Math.random() * 28 - 14));
-      photo.style.zIndex = order[i];
+      if (!photo.classList.contains('is-focus')) photo.style.zIndex = order[i];
     });
   });
 })();
@@ -819,7 +826,87 @@ const backdropLuminance = (() => {
       if (section.getBoundingClientRect().top <= h * 0.35) index = i;
     });
     if (index !== active) {
+  };
+
+  // topic = null puts everything back: every photo visible and scattered.
+  const focus = (topic) => {
+    current = topic;
+    pile.classList.toggle('is-idle', !topic);
+    if (list) {
+      list.querySelectorAll('li').forEach((li) => {
+        const on = li.querySelector('button').dataset.topic === topic;
+        li.classList.toggle('is-active', on);
+        li.querySelector('button').setAttribute('aria-expanded', String(on));
+      });
+    }
+    let n = 0;
+    photos.forEach((photo) => {
+      const on = !!topic && photo.dataset.topic === topic;
+      photo.classList.toggle('is-focus', on);
+      if (on) {
+        photo.style.setProperty('--fr', TILTS[n % TILTS.length]);
+        photo.style.zIndex = 30 + n;
+        n++;
+      } else if (Number(photo.style.zIndex) >= 30) {
+        photo.style.zIndex = '';
+      }
+    });
+    if (!topic) scatter();
+  };
+
+  if (list) {
+    list.addEventListener('click', (e) => {
+      const button = e.target.closest('button[data-topic]');
+      if (!button) return;
+      const topic = button.dataset.topic;
+      focus(topic === current ? null : topic);
+    });
+    const first = list.querySelector('.is-active button') || list.querySelector('button');
+    if (first) focus(first.dataset.topic);
+  }
+
+  // Click the stack: the front photo slides out and tucks in at the back.
+  // Click a photo from another topic: switch to that topic.
+  let dealing = false;
+  pile.addEventListener('click', (e) => {
+    const photo = e.target.closest('img');
+    if (!photo) return;
+    if (!photo.classList.contains('is-focus')) { focus(photo.dataset.topic); return; }
+    if (dealing) return;
+    const stack = photos.filter((p) => p.classList.contains('is-focus'))
+      .sort((a, b) => Number(a.style.zIndex) - Number(b.style.zIndex));
+    if (stack.length < 2) return;
+    const front = stack[stack.length - 1];
+    dealing = true;
+    front.classList.add('is-dealt');
+    setTimeout(() => {
+      // Everyone else moves up one; the front photo goes to the bottom.
+      stack.slice(0, -1).forEach((p, k) => { p.style.zIndex = 31 + k; });
+      front.style.zIndex = 30;
+      front.classList.remove('is-dealt');
+      setTimeout(() => { dealing = false; }, 350);
+    }, reduceMotion ? 0 : 320);
+  });
+
+  // Anywhere else on the page closes the open topic.
+  document.addEventListener('click', (e) => {
+    if (!current) return;
+    if (e.target.closest('[data-pile] img, [data-cares] button, .pile__shuffle')) return;
+    focus(null);
       active = index;
+
+  const button = pile.querySelector('.pile__shuffle');
+  if (button) {
+    button.addEventListener('click', () => {
+      scatter();
+      // Reshuffle the stack's tilts too, so the front pile feels re-dealt.
+      const stack = photos.filter((p) => p.classList.contains('is-focus'));
+      stack.sort(() => Math.random() - 0.5).forEach((p, k) => {
+        p.style.setProperty('--fr', TILTS[k % TILTS.length]);
+        p.style.zIndex = 30 + k;
+      });
+    });
+  }
       links.forEach((link, i) => {
         if (i === index) link.setAttribute('aria-current', 'true');
         else link.removeAttribute('aria-current');
@@ -865,7 +952,7 @@ const backdropLuminance = (() => {
   document.body.append(spark);
   root.classList.add('has-sparkle');
 
-  const clickable = 'a, button, [role="button"], label, summary, select, input, textarea, .pill';
+  const clickable = 'a, button, [role="button"], label, summary, select, input, textarea, .pill, .pile img.is-focus';
   let queued = false;
   let px = 0, py = 0;
   const check = () => {
