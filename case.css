@@ -89,14 +89,15 @@ video { object-fit: cover; background: var(--tone-50); }
 }
 
 /* ---------- Type ---------- */
+/* Case study titles: PP Eiko Thin, the same serif as the site's other big
+   headings. */
 .display {
   font-family: var(--serif);
-  font-weight: 500;
+  font-weight: 100;
   font-size: clamp(32px, 1.4vw + 26px, 38.4px);
   line-height: 1.2;
   letter-spacing: -.022em;
 }
-.display--regular { font-weight: 100; }
 .lede { font-weight: 300; font-size: 20px; line-height: 1.36; color: var(--body); }
 .heading { font-weight: 300; font-size: 30px; line-height: 1.2; color: var(--ink-muted); }
 .eyebrow { font-family: var(--serif); font-weight: 100; font-size: 17px; line-height: 1.36; color: var(--tone-600); }
@@ -115,7 +116,7 @@ video { object-fit: cover; background: var(--tone-50); }
 .measure { max-width: 791px; }
 .measure--narrow { max-width: 651px; }
 
-.titleblock { display: grid; gap: var(--s-2); max-width: 470px; }
+.titleblock { display: grid; gap: var(--s-2); max-width: 625px; }
 .titleblock--wide { max-width: 625px; }
 .titleblock--narrow { max-width: 325px; }
 /* Uses the whole column and lets lines run full rather than balancing them. */
@@ -168,9 +169,10 @@ video { object-fit: cover; background: var(--tone-50); }
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--s-5);
-  padding: clamp(48px, 8.75vw, 112px) clamp(0px, 3.2vw, 40px) 0;
+  /* No right padding: the facts (or logo) end flush with the cover's right edge. */
+  padding: clamp(48px, 8.75vw, 112px) 0 0 clamp(0px, 3.2vw, 40px);
 }
-.masthead__title { max-width: 409px; }
+.masthead__title { max-width: 600px; }
 .masthead__title .lede { margin-top: var(--s-2); }
 .masthead__logo { flex: none; width: 168px; }
 
@@ -289,9 +291,11 @@ video { object-fit: cover; background: var(--tone-50); }
 .hmw__text { align-self: center; display: grid; gap: var(--s-1); max-width: 461px; padding: 28px 0 28px 22px; }
 .hmw__text .on-dark-muted { line-height: 1.32; }
 .hmw__diagram { align-self: flex-end; flex: 0 1 429px; min-width: 0; width: 429px; }
+/* A small illustration on the right of a callout (Pure's playing cards). */
+.hmw__art { flex: 0 0 min(330px, 34%); align-self: center; min-width: 0; height: auto; margin-right: clamp(20px, 5vw, 56px); }
 
 /* ---------- Value cards ---------- */
-.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .card {
   display: flex;
   flex-direction: column;
@@ -350,6 +354,44 @@ video { object-fit: cover; background: var(--tone-50); }
 .carousel.is-dragging { cursor: grabbing; scroll-snap-type: none; user-select: none; }
 .carousel:focus-visible { outline: 2px solid var(--tone-600); outline-offset: 3px; }
 
+/* A carousel with a caption: the caption sits bottom-left, level with the
+   arrows on the right. */
+.carousel-figure { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0 24px; }
+.carousel-figure > .carousel { grid-column: 1 / -1; }
+.carousel-figure > figcaption { grid-row: 2; grid-column: 1; margin-top: 18px; text-align: left; }
+.carousel-figure > .carousel-bar { grid-row: 2; grid-column: 2; }
+
+/* Prototype slides: big grey frames, each showing its screen whole. */
+.proto-slide {
+  flex: 0 0 min(820px, 88%);
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  padding: 5%;
+  scroll-snap-align: start;
+}
+.proto-slide img { width: 100%; height: 100%; object-fit: contain; border-radius: 6px; pointer-events: none; }
+
+/* Previous/next arrows under a carousel (site.js). */
+.carousel-bar { display: flex; justify-content: flex-end; gap: 6px; margin-top: 18px; }
+.carousel-bar[hidden] { display: none; }
+.carousel-bar__arrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--tone-200);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--tone-600);
+  cursor: pointer;
+  transition: background .2s, color .2s, opacity .2s;
+}
+.carousel-bar__arrow svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.carousel-bar__arrow:hover:not(:disabled) { background: var(--tone-600); color: #fff; }
+.carousel-bar__arrow:disabled { opacity: .35; cursor: default; }
+
 .model-card {
   flex: 0 0 min(663px, 88%);
   display: flex;
@@ -395,8 +437,8 @@ video { object-fit: cover; background: var(--tone-50); }
 .checklist { display: grid; gap: 12px; max-width: 349px; font-weight: 300; font-size: 13px; line-height: 1.36; color: #333; }
 .checklist li { display: flex; align-items: flex-start; gap: 10px; }
 .checklist svg { flex: none; width: 10px; height: 10px; margin-top: 4px; color: #948f88; }
-.checklist--muted { max-width: 276px; font-size: 12px; color: var(--body); }
-.checklist--muted svg { width: 15px; height: 15px; margin-top: 0; color: inherit; }
+.checklist--muted { max-width: 330px; font-weight: 350; font-size: 15px; line-height: 1.37; color: var(--body); }
+.checklist--muted svg { width: 16px; height: 16px; margin-top: 2px; color: inherit; }
 
 /* ---------- Considerations pairs ---------- */
 .pairs { display: grid; gap: 22px; }
@@ -501,7 +543,7 @@ video { object-fit: cover; background: var(--tone-50); }
 
 .compare-review { padding: 24px 24px 20px; }
 .compare-review video { width: min(877px, 100%); margin-inline: auto; aspect-ratio: 2652 / 1560; border-radius: var(--r-panel); }
-.compare-review figcaption { margin-top: 12px; text-align: center; color: var(--on-dark-muted); }
+.compare-review figcaption { margin-top: 12px; text-align: center; color: var(--tone-950); }
 
 /* ---------- Impact ---------- */
 .section > .outcomes { margin-top: var(--s-7); }
@@ -564,6 +606,10 @@ video { object-fit: cover; background: var(--tone-50); }
   opacity: 0;
   transform: translateY(20px);
 }
+/* Goal cards arrive one at a time, each clearly after the last. */
+.js-reveal .cards > :nth-child(2) { --reveal-delay: 320ms !important; }
+.js-reveal .cards > :nth-child(3) { --reveal-delay: 640ms !important; }
+.js-reveal .cards > :nth-child(4) { --reveal-delay: 960ms !important; }
 @media print {
   .js-reveal * { opacity: 1 !important; transform: none !important; }
 }
@@ -613,6 +659,7 @@ video { object-fit: cover; background: var(--tone-50); }
   .hmw { flex-direction: column; gap: var(--s-4); }
   .hmw__text { align-self: stretch; padding: 28px 24px 0; }
   .hmw__diagram { flex: none; width: 88%; }
+  .hmw__art { flex: none; width: min(300px, 80%); margin: 0 auto 28px; }
 
   .cards { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .card { aspect-ratio: auto; min-height: 180px; }
@@ -726,11 +773,6 @@ a { color: inherit; }
 .meta dt { font-family: var(--serif); font-weight: 100; font-size: 14px; line-height: 1.36; color: var(--tone-600); }
 .meta dd { margin: 0; font-weight: 300; font-size: 13px; line-height: 1.4; color: var(--body); }
 
-/* Iteration: facts in one row under the title */
-.masthead--stacked { flex-direction: column; gap: var(--s-4); }
-.masthead--stacked .masthead__title { max-width: 520px; }
-.masthead--stacked .meta { display: flex; flex-wrap: wrap; gap: var(--s-2) 40px; width: auto; margin: 0; }
-.masthead--stacked .meta div { max-width: 240px; }
 
 /* ---------- Hero with a still ---------- */
 .hero__frame img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
@@ -774,6 +816,17 @@ a { color: inherit; }
 .grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .grid--end { align-items: end; }
+/* Paired images of equal height: each column is as wide as its image's
+   proportions (set --a and --b to the two widths at a shared height). */
+.grid--paired { grid-template-columns: minmax(0, var(--a, 1fr)) minmax(0, var(--b, 1fr)); }
+/* Matched tiles: both panels take the height of the taller one, with each
+   screen sitting at the bottom of its panel. */
+.grid--match { align-items: stretch; }
+.grid--match .tile { display: flex; flex-direction: column; }
+.grid--match .tile__media { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+/* …or sits in the middle of it, with all corners rounded. */
+.grid--match .tile__media--center { justify-content: center; padding: 9%; }
+.grid--match .tile__media--center img { border-radius: var(--r-sm); }
 .grid--center { align-items: center; }
 
 .tile__media { border-radius: var(--r-panel); overflow: hidden; background: var(--tone-250); }
@@ -782,14 +835,54 @@ a { color: inherit; }
 .tile__media--pad img { border-radius: var(--r-sm) var(--r-sm) 0 0; }
 .tile__media--grey { background: var(--grey); }
 .tile__media--dark { background: var(--tone-950); }
-.tile figcaption { margin-top: 12px; font-weight: 300; font-size: 12px; line-height: 1.36; color: var(--body); }
+.tile figcaption { margin-top: 12px; font-weight: 350; font-size: 15px; line-height: 1.37; color: var(--body); }
 .tile figcaption strong { display: block; margin-bottom: 4px; font-weight: 400; font-size: 15px; line-height: 1.37; letter-spacing: -.01em; color: var(--ink); }
-.tile--text { padding: 24px 24px 22px; border-radius: var(--r-card); background: var(--tone-50); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .04); }
+.tile--text { padding: 24px 24px 22px; border-radius: var(--r-card); background: var(--tone-50); }
 .tile--text .eyebrow { margin-bottom: var(--s-2); }
+.tile--text .title { color: var(--navy); }
 .tile--text .body { margin-top: var(--s-3); }
 
+/* Text tiles with a row of app logos above (Pure's two opportunities). The
+   logos overlap at slight angles and drop in one by one once the tile has
+   scrolled into view. */
+.tile--logos { display: flex; flex-direction: column; border-radius: var(--r-card); overflow: hidden; background: var(--tone-50); }
+.tile--logos > .tile--text { flex: 1; border-radius: 0; }
+.tile--logos .title { font-size: 16px; line-height: 1.35; }
+.logo-stack {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  background: #faf9f6;
+}
+.logo-stack img {
+  width: 96px;
+  height: 96px;
+  margin: 0 -10px;
+  border-radius: 22%;
+  box-shadow: 0 8px 16px -10px rgba(2, 33, 97, .22);
+  transform: translateY(var(--y, 0)) rotate(var(--r, 0deg));
+}
+.js-reveal .logo-stack img {
+  opacity: 0;
+  transform: translateY(calc(var(--y, 0px) + 26px)) rotate(calc(var(--r, 0deg) - 14deg)) scale(.7);
+  transition:
+    opacity .45s ease calc(.25s + var(--i, 0) * .28s),
+    transform .7s cubic-bezier(.3, 1.5, .5, 1) calc(.25s + var(--i, 0) * .28s);
+}
+.js-reveal .tile--logos.is-visible .logo-stack img { opacity: 1; transform: translateY(var(--y, 0)) rotate(var(--r, 0deg)); }
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal .logo-stack img { opacity: 1; transform: translateY(var(--y, 0)) rotate(var(--r, 0deg)); transition: none; }
+}
+@media (max-width: 720px) {
+  .logo-stack { height: 150px; }
+  .logo-stack img { width: 72px; height: 72px; margin: 0 -8px; }
+}
+
 /* ---------- Big numbers ---------- */
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+/* Big numbers: white cards with a light outline, a thin serif figure and
+   body text underneath. */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .stat {
   display: flex;
   flex-direction: column;
@@ -798,11 +891,12 @@ a { color: inherit; }
   min-height: 200px;
   padding: 24px 24px 22px;
   border-radius: var(--r-card);
-  background: var(--tone-600);
-  color: #fff;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--tone-200);
+  color: var(--navy);
 }
-.stat__num { font-family: var(--serif); font-weight: 500; font-size: 38px; line-height: 1; letter-spacing: -.022em; }
-.stat p:last-child { font-weight: 300; font-size: 15px; line-height: 1.36; color: var(--tone-100); }
+.stat__num { font-family: var(--serif); font-weight: 100; font-size: 44px; line-height: 1; letter-spacing: -.02em; color: var(--navy); }
+.stat p:last-child { font-weight: 350; font-size: 15px; line-height: 1.37; color: var(--body); }
 
 /* ---------- Callout without a diagram ---------- */
 .hmw--solo { min-height: 0; }
@@ -813,6 +907,11 @@ a { color: inherit; }
 .phones figure { flex: 0 1 230px; min-width: 0; padding-bottom: 28px; }
 .phones video { width: 100%; aspect-ratio: 1080 / 2166; border-radius: 12% / 5.8%; background: #000; }
 .phones figcaption { margin-top: 16px; font-size: 15px; line-height: 1.3; text-align: center; color: var(--on-dark-soft); }
+/* Played in turn (site.js): the playing phone is lit, the others dim; click
+   any phone to play it. */
+.phones[data-sequence] figure { cursor: pointer; transition: opacity .45s ease; }
+.phones[data-sequence].is-running figure:not(.is-playing) { opacity: .35; }
+.phones[data-sequence].is-running figure:not(.is-playing):hover { opacity: .6; }
 
 @media (max-width: 720px) {
   .masthead:has(.meta) { flex-direction: column; }
@@ -829,6 +928,15 @@ a { color: inherit; }
 
 /* ---------- Small helpers ---------- */
 .stack { display: grid; gap: 20px; align-content: start; }
+/* Mosaic: one tall picture beside a stack of two, all edges flush, with a
+   tighter gutter. The tall one is cropped to the stack's height. */
+.split--mosaic { gap: 12px; align-items: stretch; }
+.split--mosaic .stack { gap: 12px; }
+.split--mosaic > .panel { position: relative; min-height: 0; }
+.split--mosaic > .panel > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+@media (max-width: 720px) {
+  .split--mosaic > .panel > img { position: static; height: auto; }
+}
 .pair__media > img:only-child { width: 100%; height: 100%; object-fit: cover; }
 .figcap { display: grid; gap: var(--s-1); margin-top: 16px; }
 .section > figure + figure { margin-top: var(--s-7); }
@@ -873,22 +981,24 @@ a { color: inherit; }
     color: var(--ink-muted);
     transition: color .25s;
   }
-  /* A small square marks the part you're in. */
+  /* A small dot marks the part you're in, in the brand blue whichever case
+     study you're on. */
   .toc__list a::before {
     content: "";
     position: absolute;
-    left: -13px;
+    left: -14px;
     top: 50%;
-    width: 4px;
-    height: 4px;
-    margin-top: -2px;
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-radius: 50%;
     background: currentColor;
     opacity: 0;
-    transition: opacity .25s;
+    transform: scale(.3);
+    transition: opacity .25s, transform .35s cubic-bezier(.3, 1.4, .5, 1);
   }
-  .toc__list a:hover { color: var(--ink); }
-  .toc__list a[aria-current] { color: var(--tone-600); }
-  .toc__list a[aria-current]::before { opacity: 1; }
+  .toc__list a[aria-current] { color: var(--blue); }
+  .toc__list a[aria-current]::before { opacity: 1; transform: none; }
 }
 
 /* Mid-width screens: nudge the page right so the menu has a column of its own. */
@@ -934,7 +1044,7 @@ a { color: inherit; }
     white-space: nowrap;
     cursor: pointer;
   }
-  .toc__toggle svg { flex: none; color: var(--tone-600); }
+  .toc__toggle svg { flex: none; color: var(--blue); }
   .toc__current { overflow: hidden; text-overflow: ellipsis; }
 
   .toc__list {
@@ -959,7 +1069,7 @@ a { color: inherit; }
   .toc.is-open .toc__list { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
   .toc__list a { display: block; padding: 11px 0; font-size: 15px; color: var(--ink); }
   .toc__list li + li a { border-top: 1px solid rgba(0, 0, 0, .08); }
-  .toc__list a[aria-current] { color: var(--tone-600); }
+  .toc__list a[aria-current] { color: var(--blue); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -993,6 +1103,11 @@ a { color: inherit; }
 /* Type comes from the shared scale (.eyebrow, .title, .body); the coloured
    cards only swap in the on-dark colours the rest of the case studies use. */
 .bento__text .title { max-width: 380px; }
+/* Eyebrow sits a little apart from the title it introduces: 14px in every
+   card, whether the pair sits straight in the grid (8px gap + 6px) or is
+   wrapped together (the wide card). */
+.bento__text > .eyebrow + .title { margin-top: 6px; }
+.bento__text > div > .eyebrow + .title { margin-top: 14px; }
 :is(.bento__card--accent, .bento__card--dark) .eyebrow { color: var(--on-navy-label); }
 .bento__card--accent .eyebrow { color: var(--tone-200); }
 :is(.bento__card--accent, .bento__card--dark) .body { color: var(--on-dark-soft); }
@@ -1026,7 +1141,7 @@ a { color: inherit; }
   height: 100%;
   min-height: 280px;
   object-fit: cover;
-  object-position: 72% center;
+  object-position: center;
   border-radius: 6px;
   box-shadow: 0 14px 34px -18px rgba(0, 0, 0, .35);
 }

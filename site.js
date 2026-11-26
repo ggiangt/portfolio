@@ -343,7 +343,56 @@ const backdropLuminance = (() => {
   videos.forEach((video) => observer.observe(video));
 })();
 
-// Carousel: click-and-drag to scroll with a mouse (touch and trackpad scroll natively).
+// Videos in a sequence ([data-sequence]): they play one after another. The
+// playing one is highlighted and the rest dim; when it ends, the next starts
+// (looping back to the first). Clicking a video plays that one instead.
+(function () {
+  document.querySelectorAll('[data-sequence]').forEach((group) => {
+    const figures = [...group.querySelectorAll('figure')].filter((f) => f.querySelector('video'));
+    const videos = figures.map((f) => f.querySelector('video'));
+    if (!videos.length) return;
+    let current = -1;
+    let inView = false;
+
+    const play = (i, fromStart) => {
+      current = i;
+      group.classList.add('is-running');
+      figures.forEach((f, k) => f.classList.toggle('is-playing', k === i));
+      videos.forEach((v, k) => {
+        if (k === i) {
+          if (fromStart) v.currentTime = 0;
+          if (inView) v.play().catch(() => {});
+        } else {
+          v.pause();
+        }
+      });
+    };
+
+    videos.forEach((v, i) => {
+      v.loop = false;
+      v.addEventListener('ended', () => {
+        if (i === current) play((i + 1) % videos.length, true);
+      });
+    });
+    figures.forEach((f, i) => {
+      f.addEventListener('click', () => play(i, i !== current || videos[i].ended));
+    });
+
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      // No autoplay: clicking a phone still plays it (and the rest follow).
+      inView = true;
+      return;
+    }
+    new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      if (inView) play(current < 0 ? 0 : current, false);
+      else if (current >= 0) videos[current].pause();
+    }, { threshold: 0.35 }).observe(group);
+  });
+})();
+
+// Carousel: click-and-drag to scroll with a mouse (touch and trackpad scroll
+// natively), with previous/next arrows underneath.
 (function () {
   document.querySelectorAll('.carousel').forEach((el) => {
     let startX = 0;
@@ -376,6 +425,29 @@ const backdropLuminance = (() => {
       const step = el.clientWidth * 0.7 * (e.key === 'ArrowRight' ? 1 : -1);
       el.scrollBy({ left: step, behavior: 'smooth' });
     });
+
+    // Previous/next arrows under the carousel show there's more to the side.
+    const bar = document.createElement('div');
+    bar.className = 'carousel-bar is-visible';
+    bar.innerHTML =
+      '<button class="carousel-bar__arrow" type="button" aria-label="Previous"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg></button>' +
+      '<button class="carousel-bar__arrow" type="button" aria-label="Next"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5"/></svg></button>';
+    el.after(bar);
+    const [prev, next] = bar.querySelectorAll('button');
+
+    const max = () => Math.max(1, el.scrollWidth - el.clientWidth);
+    const sync = () => {
+      prev.disabled = el.scrollLeft <= 2;
+      next.disabled = el.scrollLeft >= max() - 2;
+      bar.hidden = el.scrollWidth <= el.clientWidth + 2;
+    };
+    el.addEventListener('scroll', sync, { passive: true });
+    window.addEventListener('resize', sync);
+    sync();
+
+    const step = (dir) => el.scrollBy({ left: el.clientWidth * 0.7 * dir, behavior: reduceMotion ? 'auto' : 'smooth' });
+    prev.addEventListener('click', () => step(-1));
+    next.addEventListener('click', () => step(1));
   });
 })();
 
@@ -754,7 +826,87 @@ const backdropLuminance = (() => {
       photo.style.setProperty('--r', Math.round(Math.random() * 28 - 14));
       if (!photo.classList.contains('is-focus')) photo.style.zIndex = order[i];
     });
+  };
+
+  // topic = null puts everything back: every photo visible and scattered.
+  const focus = (topic) => {
+    current = topic;
+    pile.classList.toggle('is-idle', !topic);
+    if (list) {
+      list.querySelectorAll('li').forEach((li) => {
+        const on = li.querySelector('button').dataset.topic === topic;
+        li.classList.toggle('is-active', on);
+        li.querySelector('button').setAttribute('aria-expanded', String(on));
+      });
+    }
+    let n = 0;
+    photos.forEach((photo) => {
+      const on = !!topic && photo.dataset.topic === topic;
+      photo.classList.toggle('is-focus', on);
+      if (on) {
+        photo.style.setProperty('--fr', TILTS[n % TILTS.length]);
+        photo.style.zIndex = 30 + n;
+        n++;
+      } else if (Number(photo.style.zIndex) >= 30) {
+        photo.style.zIndex = '';
+      }
+    });
+    if (!topic) scatter();
+  };
+
+  if (list) {
+    list.addEventListener('click', (e) => {
+      const button = e.target.closest('button[data-topic]');
+      if (!button) return;
+      const topic = button.dataset.topic;
+      focus(topic === current ? null : topic);
+    });
+    const first = list.querySelector('.is-active button') || list.querySelector('button');
+    if (first) focus(first.dataset.topic);
+  }
+
+  // Click the stack: the front photo slides out and tucks in at the back.
+  // Click a photo from another topic: switch to that topic.
+  let dealing = false;
+  pile.addEventListener('click', (e) => {
+    const photo = e.target.closest('img');
+    if (!photo) return;
+    if (!photo.classList.contains('is-focus')) { focus(photo.dataset.topic); return; }
+    if (dealing) return;
+    const stack = photos.filter((p) => p.classList.contains('is-focus'))
+      .sort((a, b) => Number(a.style.zIndex) - Number(b.style.zIndex));
+    if (stack.length < 2) return;
+    const front = stack[stack.length - 1];
+    dealing = true;
+    front.classList.add('is-dealt');
+    setTimeout(() => {
+      // Everyone else moves up one; the front photo goes to the bottom.
+      stack.slice(0, -1).forEach((p, k) => { p.style.zIndex = 31 + k; });
+      front.style.zIndex = 30;
+      front.classList.remove('is-dealt');
+      setTimeout(() => { dealing = false; }, 350);
+    }, reduceMotion ? 0 : 320);
   });
+
+  // Anywhere else on the page closes the open topic.
+  document.addEventListener('click', (e) => {
+    if (!current) return;
+    if (e.target.closest('[data-pile] img, [data-cares] button, .pile__shuffle')) return;
+    focus(null);
+  });
+
+  const button = pile.querySelector('.pile__shuffle');
+  if (button) {
+    button.addEventListener('click', () => {
+      scatter();
+      // Reshuffle the stack's tilts too, so the front pile feels re-dealt.
+      const stack = photos.filter((p) => p.classList.contains('is-focus'));
+      stack.sort(() => Math.random() - 0.5).forEach((p, k) => {
+        p.style.setProperty('--fr', TILTS[k % TILTS.length]);
+        p.style.zIndex = 30 + k;
+      });
+    });
+  }
 })();
 
 // Case studies: a side menu for jumping between the parts of the page.
@@ -826,87 +978,7 @@ const backdropLuminance = (() => {
       if (section.getBoundingClientRect().top <= h * 0.35) index = i;
     });
     if (index !== active) {
-  };
-
-  // topic = null puts everything back: every photo visible and scattered.
-  const focus = (topic) => {
-    current = topic;
-    pile.classList.toggle('is-idle', !topic);
-    if (list) {
-      list.querySelectorAll('li').forEach((li) => {
-        const on = li.querySelector('button').dataset.topic === topic;
-        li.classList.toggle('is-active', on);
-        li.querySelector('button').setAttribute('aria-expanded', String(on));
-      });
-    }
-    let n = 0;
-    photos.forEach((photo) => {
-      const on = !!topic && photo.dataset.topic === topic;
-      photo.classList.toggle('is-focus', on);
-      if (on) {
-        photo.style.setProperty('--fr', TILTS[n % TILTS.length]);
-        photo.style.zIndex = 30 + n;
-        n++;
-      } else if (Number(photo.style.zIndex) >= 30) {
-        photo.style.zIndex = '';
-      }
-    });
-    if (!topic) scatter();
-  };
-
-  if (list) {
-    list.addEventListener('click', (e) => {
-      const button = e.target.closest('button[data-topic]');
-      if (!button) return;
-      const topic = button.dataset.topic;
-      focus(topic === current ? null : topic);
-    });
-    const first = list.querySelector('.is-active button') || list.querySelector('button');
-    if (first) focus(first.dataset.topic);
-  }
-
-  // Click the stack: the front photo slides out and tucks in at the back.
-  // Click a photo from another topic: switch to that topic.
-  let dealing = false;
-  pile.addEventListener('click', (e) => {
-    const photo = e.target.closest('img');
-    if (!photo) return;
-    if (!photo.classList.contains('is-focus')) { focus(photo.dataset.topic); return; }
-    if (dealing) return;
-    const stack = photos.filter((p) => p.classList.contains('is-focus'))
-      .sort((a, b) => Number(a.style.zIndex) - Number(b.style.zIndex));
-    if (stack.length < 2) return;
-    const front = stack[stack.length - 1];
-    dealing = true;
-    front.classList.add('is-dealt');
-    setTimeout(() => {
-      // Everyone else moves up one; the front photo goes to the bottom.
-      stack.slice(0, -1).forEach((p, k) => { p.style.zIndex = 31 + k; });
-      front.style.zIndex = 30;
-      front.classList.remove('is-dealt');
-      setTimeout(() => { dealing = false; }, 350);
-    }, reduceMotion ? 0 : 320);
-  });
-
-  // Anywhere else on the page closes the open topic.
-  document.addEventListener('click', (e) => {
-    if (!current) return;
-    if (e.target.closest('[data-pile] img, [data-cares] button, .pile__shuffle')) return;
-    focus(null);
       active = index;
-
-  const button = pile.querySelector('.pile__shuffle');
-  if (button) {
-    button.addEventListener('click', () => {
-      scatter();
-      // Reshuffle the stack's tilts too, so the front pile feels re-dealt.
-      const stack = photos.filter((p) => p.classList.contains('is-focus'));
-      stack.sort(() => Math.random() - 0.5).forEach((p, k) => {
-        p.style.setProperty('--fr', TILTS[k % TILTS.length]);
-        p.style.zIndex = 30 + k;
-      });
-    });
-  }
       links.forEach((link, i) => {
         if (i === index) link.setAttribute('aria-current', 'true');
         else link.removeAttribute('aria-current');
